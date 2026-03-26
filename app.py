@@ -5,6 +5,9 @@ import re
 import shlex
 import subprocess
 import uuid
+import os
+from PIL import Image
+from pypdf import PdfReader
 from pathlib import Path
 from typing import Any
 
