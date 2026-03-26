@@ -1,20 +1,13 @@
-FROM python:3.12-slim
+FROM python:3.11-slim
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV MEDIA_FORGE_STORAGE_DIR=/app/workspace
+# تثبيت ffmpeg
+RUN apt-get update && apt-get install -y ffmpeg && apt-get clean
 
 WORKDIR /app
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends ffmpeg nodejs npm \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
 COPY . .
 
-EXPOSE 5000
+RUN pip install --no-cache-dir -r requirements.txt
 
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-5000} app:app"]
+ENV PORT=10000
+
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:10000"]
