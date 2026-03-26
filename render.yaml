@@ -1,11 +1,5 @@
 services:
   - type: web
-    name: media-forge
+    name: file-converter
     env: docker
     plan: free
-    autoDeploy: true
-    healthCheckPath: /health
-    dockerfilePath: ./Dockerfile
-    envVars:
-      - key: MEDIA_FORGE_STORAGE_DIR
-        value: /tmp/media-forge
