@@ -1,0 +1,23 @@
+# Flutter/Dart
+.dart_tool/
+.idea/
+.packages
+.pub/
+build/
+
+# Android Studio
+*.iml
+local.properties
+
+# Logs
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Generated app data
+workspace/uploads/
+workspace/downloads/
+workspace/converted/
