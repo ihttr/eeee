@@ -21,12 +21,6 @@ TMP_DIR.mkdir(parents=True, exist_ok=True)
 app = FastAPI(title="Media Downloader", version="1.0.0")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-from flask import send_from_directory
-
-@app.route('/sitemap.xml')
-def sitemap():
-    return send_from_directory('.', 'sitemap.xml')
-
 
 class InfoRequest(BaseModel):
     url: str
