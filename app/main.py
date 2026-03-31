@@ -32,9 +32,6 @@ def _validate_url(url: str) -> str:
         raise HTTPException(status_code=400, detail="Only http/https URLs are allowed.")
     return candidate
 
-@app.route('/sitemap.xml')
-def sitemap():
-    return app.send_static_file('sitemap.xml')
     
 def _as_megabytes(size: int | None) -> str | None:
     if not size:
