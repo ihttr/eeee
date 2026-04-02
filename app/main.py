@@ -185,7 +185,7 @@ def dashboard() -> FileResponse:
     return FileResponse(STATIC_DIR / "dashboard.html")
 
 @app.get("/sitemap")
-def dashboard() -> FileResponse:
+def root() -> FileResponse:
     return FileResponse(STATIC_DIR / "sitemap.xml")
     
     
