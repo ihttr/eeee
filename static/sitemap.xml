@@ -1,5 +1,27 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
   <url>
-    <loc>https://savevid.online</loc>
+    <loc>https://savevid.online/</loc>
   </url>
+
+  <url>
+    <loc>https://savevid.online/tiktok-downloader</loc>
+  </url>
+
+  <url>
+    <loc>https://savevid.online/instagram-downloader</loc>
+  </url>
+
+  <url>
+    <loc>https://savevid.online/youtube-downloader</loc>
+  </url>
+
+  <url>
+    <loc>https://savevid.online/twitter-downloader</loc>
+  </url>
+  
+  <url>
+    <loc>https://savevid.online/video-to-mp3</loc>
+  </url>
+
 </urlset>
