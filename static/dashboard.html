@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Downloads Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <main class="container">
+      <header class="hero">
+        <p class="tag">Dashboard</p>
+        <h1>Downloaded Links</h1>
+        <p class="subtitle">Track your recent downloads and re-open them quickly.</p>
+        <div class="page-actions">
+          <a href="/" class="dashboard-link">Back To Downloader</a>
+          <button id="clear-history" type="button" class="ghost-btn">Clear History</button>
+        </div>
+      </header>
+
+      <section class="panel history-panel">
+        <div class="history-stats">
+          <article class="metric">
+            <p>Total Downloads</p>
+            <strong id="metric-total">0</strong>
+          </article>
+          <article class="metric">
+            <p>Video</p>
+            <strong id="metric-video">0</strong>
+          </article>
+          <article class="metric">
+            <p>Audio</p>
+            <strong id="metric-audio">0</strong>
+          </article>
+        </div>
+
+        <p id="status" class="status"></p>
+
+        <div class="table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Format</th>
+                <th>Time</th>
+                <th>Link</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="history-body">
+              <tr>
+                <td colspan="6" class="history-empty">No downloads yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <script src="/static/dashboard.js"></script>
+  </body>
+</html>
