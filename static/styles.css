@@ -236,3 +236,8 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+body.tiktok {
+  --accent: #25f4ee;
+  --accent-2: #fe2c55;
+  background: radial-gradient(circle at 20% 20%, #0f172a, #000);
+}
