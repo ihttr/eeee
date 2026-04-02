@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/logo.png" type="image/png">
+    <title>Save Video - Download Instagram Videos & Reels</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <main class="container">
+      <header class="hero">
+        <p class="tag">Save Video</p>
+        <h1>Download Instagram Videos & Reels</h1>
+        <p class="subtitle">
+          Download Instagram videos, and reels easily with Save Video.
+No watermark, high quality, and completely free.
+        </p>
+      </header>
+
+      <section class="panel">
+        <form id="analyze-form" class="url-form">
+          <label for="url-input">Video URL</label>
+          <div class="row">
+            <input
+              id="url-input"
+              type="url"
+              required
+              placeholder="https://example.com/video"
+              autocomplete="off"
+            />
+            <button id="analyze-btn" type="submit">Analyze</button>
+          </div>
+        </form>
+
+        <p id="status" class="status"></p>
+
+        <section id="result" class="result hidden">
+          <div class="meta">
+            <img id="thumb" alt="Thumbnail" class="thumb" />
+            <div class="meta-text">
+              <h2 id="title"></h2>
+              <p id="uploader"></p>
+              <p id="duration"></p>
+            </div>
+          </div>
+
+          <div class="download-grid">
+            <article class="card">
+              <h3>Video download</h3>
+              <label for="video-format">Quality</label>
+              <select id="video-format"></select>
+              <button id="download-video" type="button">Download Video</button>
+            </article>
+
+            <article class="card">
+              <h3>Audio download</h3>
+              <label for="audio-format-id">Source audio stream</label>
+              <select id="audio-format-id"></select>
+
+              <label for="audio-file-format">Final file format</label>
+              <select id="audio-file-format">
+                <option value="mp3">MP3</option>
+                <option value="m4a">M4A</option>
+                <option value="wav">WAV</option>
+                <option value="opus">OPUS</option>
+              </select>
+
+              <button id="download-audio" type="button">Download Audio</button>
+            </article>
+          </div>
+        </section>
+      </section>
+
+      <footer>
+        Use this tool only for content you own or are legally allowed to download.
+      </footer>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
