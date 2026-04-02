@@ -161,6 +161,11 @@ def root() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
 
 
+@app.get("/dashboard")
+def dashboard() -> FileResponse:
+    return FileResponse(STATIC_DIR / "dashboard.html")
+    
+    
 @app.post("/api/info")
 def media_info(payload: InfoRequest) -> dict[str, Any]:
     source_url = _validate_url(payload.url)
