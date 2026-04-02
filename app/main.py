@@ -164,10 +164,29 @@ def root() -> FileResponse:
 def root() -> FileResponse:
     return FileResponse(STATIC_DIR / "tiktok-downloader.html")
 
+@app.get("/instagram-downloader")
+def root() -> FileResponse:
+    return FileResponse(STATIC_DIR / "instagram-downloader.html")
+
+@app.get("/youtube-downloader")
+def root() -> FileResponse:
+    return FileResponse(STATIC_DIR / "youtube-downloader.html")
+
+@app.get("/twitter-downloader")
+def root() -> FileResponse:
+    return FileResponse(STATIC_DIR / "twitter-downloader.html")
+
+@app.get("/video-to-mp3")
+def root() -> FileResponse:
+    return FileResponse(STATIC_DIR / "video-to-mp3.html")
 
 @app.get("/dashboard")
 def dashboard() -> FileResponse:
     return FileResponse(STATIC_DIR / "dashboard.html")
+
+@app.get("/sitemap")
+def dashboard() -> FileResponse:
+    return FileResponse(STATIC_DIR / "sitemap.xml")
     
     
 @app.post("/api/info")
