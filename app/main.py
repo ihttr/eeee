@@ -160,6 +160,10 @@ def health() -> dict[str, str]:
 def root() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
 
+@app.get("/")
+def root() -> FileResponse:
+    return FileResponse(STATIC_DIR / "tiktok-downloader.html")
+
 
 @app.get("/dashboard")
 def dashboard() -> FileResponse:
