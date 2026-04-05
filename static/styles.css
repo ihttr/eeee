@@ -77,10 +77,62 @@ h1 {
   letter-spacing: -0.6px;
 }
 
+h2 {
+  margin: 0;
+  font-size: clamp(22px, 3vw, 34px);
+}
+
 .subtitle {
   color: var(--muted);
   margin-top: 10px;
   max-width: 700px;
+}
+
+.tool-links {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tool-link {
+  text-decoration: none;
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 13px;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.tool-link:hover {
+  border-color: rgba(76, 201, 240, 0.9);
+  background: rgba(76, 201, 240, 0.15);
+}
+
+.dashboard-link {
+  display: inline-block;
+  margin-top: 14px;
+  text-decoration: none;
+  color: #081018;
+  font-weight: 700;
+  background: linear-gradient(120deg, #4cc9f0, #35f0c2);
+  padding: 10px 14px;
+  border-radius: 12px;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.dashboard-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(53, 240, 194, 0.35);
+}
+
+.page-actions {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .panel {
@@ -142,6 +194,18 @@ button:disabled {
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+}
+
+.ghost-btn {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: none;
+}
+
+.ghost-btn:hover {
+  box-shadow: none;
+  border-color: rgba(76, 201, 240, 0.8);
 }
 
 .status {
@@ -212,6 +276,127 @@ button:disabled {
   margin-top: 8px;
 }
 
+.history-panel {
+  margin-top: 18px;
+}
+
+.history-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.history-stats {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.metric {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(8, 13, 24, 0.65);
+}
+
+.metric p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.metric strong {
+  margin-top: 6px;
+  display: block;
+  font-size: clamp(24px, 3.3vw, 34px);
+}
+
+.table-wrap {
+  margin-top: 14px;
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  background: rgba(8, 13, 24, 0.65);
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 780px;
+}
+
+.history-table th,
+.history-table td {
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  vertical-align: middle;
+}
+
+.history-table th {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.history-table td {
+  font-size: 14px;
+}
+
+.history-table tr:last-child td {
+  border-bottom: none;
+}
+
+.history-link {
+  color: var(--accent-2);
+  text-decoration: none;
+}
+
+.history-link:hover {
+  text-decoration: underline;
+}
+
+.type-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.type-pill.video {
+  color: #4cc9f0;
+}
+
+.type-pill.audio {
+  color: #35f0c2;
+}
+
+.row-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.row-actions button {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 13px;
+  padding: 8px 10px;
+}
+
+.row-actions button:hover {
+  border-color: rgba(76, 201, 240, 0.8);
+  box-shadow: none;
+}
+
+.history-empty {
+  color: var(--muted);
+}
+
 footer {
   margin-top: 16px;
   color: var(--muted);
@@ -232,12 +417,27 @@ footer {
 @media (max-width: 860px) {
   .row,
   .download-grid,
-  .meta {
+  .meta,
+  .history-stats {
     grid-template-columns: 1fr;
   }
-}
-body.tiktok {
-  --accent: #25f4ee;
-  --accent-2: #fe2c55;
-  background: radial-gradient(circle at 20% 20%, #0f172a, #000);
+
+  .history-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tool-links {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tool-link {
+    text-align: center;
+  }
+
+  .page-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
