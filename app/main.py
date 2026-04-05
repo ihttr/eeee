@@ -221,6 +221,9 @@ def health() -> dict[str, str]:
 def root() -> FileResponse:
     return _page_file("index.html")
 
+@app.get("/favicon.ico")
+def favicon() -> FileResponse:
+    return _page_file("favicon.ico")
 
 @app.get("/instagram-downloader")
 def instagram_downloader() -> FileResponse:
