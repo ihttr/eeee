@@ -1,15 +1,18 @@
 from __future__ import annotations
 
+import json
 import re
 import shutil
+import threading
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlencode
 
 import yt_dlp
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
-from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from starlette.background import BackgroundTask
@@ -18,6 +21,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_DIR = BASE_DIR / "static"
 TMP_DIR = BASE_DIR / ".tmp_downloads"
 TMP_DIR.mkdir(parents=True, exist_ok=True)
+HISTORY_FILE = TMP_DIR / "history.json"
+HISTORY_LOCK = threading.Lock()
+MAX_HISTORY_ITEMS = 300
 
 app = FastAPI(title="Media Downloader", version="1.0.0")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
@@ -33,7 +39,7 @@ def _validate_url(url: str) -> str:
         raise HTTPException(status_code=400, detail="Only http/https URLs are allowed.")
     return candidate
 
-    
+
 def _as_megabytes(size: int | None) -> str | None:
     if not size:
         return None
@@ -152,6 +158,56 @@ def _latest_file(path: Path) -> Path:
     return max(files, key=lambda p: p.stat().st_size)
 
 
+def _read_history_nolock() -> list[dict[str, Any]]:
+    if not HISTORY_FILE.exists():
+        return []
+    try:
+        raw = json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    if not isinstance(raw, list):
+        return []
+    items: list[dict[str, Any]] = []
+    for entry in raw:
+        if isinstance(entry, dict):
+            items.append(entry)
+    return items
+
+
+def _write_history_nolock(items: list[dict[str, Any]]) -> None:
+    HISTORY_FILE.write_text(json.dumps(items, ensure_ascii=True), encoding="utf-8")
+
+
+def _append_history_entry(entry: dict[str, Any]) -> None:
+    with HISTORY_LOCK:
+        items = _read_history_nolock()
+        items.insert(0, entry)
+        _write_history_nolock(items[:MAX_HISTORY_ITEMS])
+
+
+def _download_url_from_entry(entry: dict[str, Any]) -> str:
+    params = {
+        "url": str(entry.get("source_url") or ""),
+        "kind": str(entry.get("kind") or "video"),
+        "format_id": str(entry.get("format_id") or "best"),
+    }
+    if params["kind"] == "audio":
+        params["audio_format"] = str(entry.get("audio_format") or "mp3")
+    return f"/api/download?{urlencode(params)}"
+
+
+def _history_response_item(entry: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "id": entry.get("id"),
+        "title": entry.get("title") or "Untitled media",
+        "source_url": entry.get("source_url"),
+        "kind": entry.get("kind") or "video",
+        "format": entry.get("format") or "Auto",
+        "created_at": entry.get("created_at"),
+        "download_url": _download_url_from_entry(entry),
+    }
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -161,43 +217,25 @@ def health() -> dict[str, str]:
 def root() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
 
-@app.get("/tiktok-downloader")
-def root() -> FileResponse:
-    return FileResponse(STATIC_DIR / "tiktok-downloader.html")
-
-@app.get("/instagram-downloader")
-def root() -> FileResponse:
-    return FileResponse(STATIC_DIR / "instagram-downloader.html")
-
-@app.get("/youtube-downloader")
-def root() -> FileResponse:
-    return FileResponse(STATIC_DIR / "youtube-downloader.html")
-
-@app.get("/twitter-downloader")
-def root() -> FileResponse:
-    return FileResponse(STATIC_DIR / "twitter-downloader.html")
-
-@app.get("/video-to-mp3")
-def root() -> FileResponse:
-    return FileResponse(STATIC_DIR / "video-to-mp3.html")
 
 @app.get("/dashboard")
 def dashboard() -> FileResponse:
     return FileResponse(STATIC_DIR / "dashboard.html")
 
 
-@app.get("/sitemap.xml")
-def sitemap():
-    file_path = STATIC_DIR / "sitemap.xml"
-    
-    # التأكد من وجود الملف أولاً لتجنب خطأ 500
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="Sitemap not found")
+@app.get("/api/history")
+def history_list() -> dict[str, list[dict[str, Any]]]:
+    with HISTORY_LOCK:
+        items = _read_history_nolock()
+    return {"items": [_history_response_item(item) for item in items]}
 
-    return FileResponse(
-        path=file_path, 
-        media_type="application/xml"
-    )
+
+@app.delete("/api/history")
+def history_clear() -> dict[str, str]:
+    with HISTORY_LOCK:
+        _write_history_nolock([])
+    return {"status": "cleared"}
+
 
 @app.post("/api/info")
 def media_info(payload: InfoRequest) -> dict[str, Any]:
@@ -230,6 +268,7 @@ def download(
     kind: str = "video",
     format_id: str = "best",
     audio_format: str = "mp3",
+    format_label: str | None = None,
 ) -> FileResponse:
     url = _validate_url(url)
     kind = kind.lower().strip()
@@ -280,6 +319,25 @@ def download(
     if isinstance(info, dict):
         title = str(info.get("title") or title)
     filename = f"{_clean_name(title)}{file_path.suffix or ''}"
+    display_format = (format_label or "").strip()
+    if not display_format:
+        if kind == "video":
+            display_format = format_id or "best"
+        else:
+            selected_audio = format_id if format_id and format_id != "best" else "bestaudio"
+            display_format = f"{selected_audio} -> {audio_format.upper()}"
+    _append_history_entry(
+        {
+            "id": uuid.uuid4().hex,
+            "title": title,
+            "source_url": url,
+            "kind": kind,
+            "format_id": format_id or ("bestaudio" if kind == "audio" else "best"),
+            "audio_format": audio_format if kind == "audio" else None,
+            "format": display_format[:180],
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+    )
 
     return FileResponse(
         path=file_path,
