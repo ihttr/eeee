@@ -186,16 +186,19 @@ def dashboard() -> FileResponse:
     return FileResponse(STATIC_DIR / "dashboard.html")
 
 
-
 @app.get("/sitemap.xml")
 def sitemap():
     file_path = STATIC_DIR / "sitemap.xml"
-
-    with open(file_path, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    return Response(content=content, media_type="application/xml")
     
+    # التأكد من وجود الملف أولاً لتجنب خطأ 500
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Sitemap not found")
+
+    return FileResponse(
+        path=file_path, 
+        media_type="application/xml"
+    )
+
 @app.post("/api/info")
 def media_info(payload: InfoRequest) -> dict[str, Any]:
     source_url = _validate_url(payload.url)
