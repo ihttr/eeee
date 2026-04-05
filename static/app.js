@@ -16,6 +16,10 @@ const downloadAudioBtn = document.getElementById("download-audio");
 
 let currentInfo = null;
 
+function selectedOptionLabel(select) {
+  return select.options[select.selectedIndex]?.text || "Auto";
+}
+
 function setStatus(message, isError = false) {
   statusBox.textContent = message;
   statusBox.classList.toggle("error", isError);
@@ -88,9 +92,14 @@ function buildDownloadUrl(kind) {
 
   if (kind === "video") {
     params.set("format_id", videoFormatSelect.value || "best");
+    params.set("format_label", selectedOptionLabel(videoFormatSelect));
   } else {
     params.set("format_id", audioFormatIdSelect.value || "bestaudio");
     params.set("audio_format", audioFileFormatSelect.value || "mp3");
+    params.set(
+      "format_label",
+      `${selectedOptionLabel(audioFormatIdSelect)} -> ${(audioFileFormatSelect.value || "mp3").toUpperCase()}`,
+    );
   }
   return `/api/download?${params.toString()}`;
 }
