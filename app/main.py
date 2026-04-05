@@ -184,9 +184,9 @@ def root() -> FileResponse:
 def dashboard() -> FileResponse:
     return FileResponse(STATIC_DIR / "dashboard.html")
 
-@@app.get("/sitemap.xml")
+@app.get("/sitemap.xml")
 def sitemap():
-    return FileResponse("static/sitemap.xml", media_type="application/xml")
+    return FileResponse(STATIC_DIR / "sitemap.xml", media_type="application/xml")
     
 @app.post("/api/info")
 def media_info(payload: InfoRequest) -> dict[str, Any]:
