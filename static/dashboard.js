@@ -5,30 +5,9 @@ const metricVideo = document.getElementById("metric-video");
 const metricAudio = document.getElementById("metric-audio");
 const statusBox = document.getElementById("status");
 
-const HISTORY_KEY = "media_downloader_history_v1";
-
 function setStatus(message, isError = false) {
   statusBox.textContent = message;
   statusBox.classList.toggle("error", isError);
-}
-
-function getHistory() {
-  try {
-    const raw = localStorage.getItem(HISTORY_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveHistory(history) {
-  try {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-  } catch {
-    setStatus("Could not save history in this browser.", true);
-  }
 }
 
 function formatDateTime(isoDate) {
@@ -70,22 +49,21 @@ async function copyToClipboard(text) {
   }
 }
 
-function renderHistory() {
-  const history = getHistory();
-  const videoCount = history.filter((item) => item.kind === "video").length;
-  const audioCount = history.filter((item) => item.kind === "audio").length;
+function renderHistory(items) {
+  const videoCount = items.filter((item) => item.kind === "video").length;
+  const audioCount = items.filter((item) => item.kind === "audio").length;
 
-  metricTotal.textContent = String(history.length);
+  metricTotal.textContent = String(items.length);
   metricVideo.textContent = String(videoCount);
   metricAudio.textContent = String(audioCount);
 
-  if (!history.length) {
+  if (!items.length) {
     setEmptyState();
     return;
   }
 
   historyBody.innerHTML = "";
-  for (const item of history) {
+  for (const item of items) {
     const row = document.createElement("tr");
 
     const titleCell = document.createElement("td");
@@ -109,11 +87,11 @@ function renderHistory() {
 
     const linkCell = document.createElement("td");
     const link = document.createElement("a");
-    link.href = item.source_url;
+    link.href = item.source_url || "#";
     link.target = "_blank";
     link.rel = "noopener noreferrer";
     link.className = "history-link";
-    link.textContent = shortLink(item.source_url);
+    link.textContent = shortLink(item.source_url || "");
     linkCell.appendChild(link);
     row.appendChild(linkCell);
 
@@ -145,10 +123,36 @@ function renderHistory() {
   }
 }
 
-clearHistoryBtn.addEventListener("click", () => {
-  saveHistory([]);
-  renderHistory();
-  setStatus("History cleared.");
+async function loadHistory() {
+  try {
+    const response = await fetch("/api/history", { cache: "no-store" });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.detail || "Failed to load history.");
+    }
+    renderHistory(Array.isArray(payload.items) ? payload.items : []);
+    if (statusBox.classList.contains("error")) {
+      setStatus("");
+    }
+  } catch (err) {
+    setStatus(err.message || "Could not load history.", true);
+    setEmptyState();
+  }
+}
+
+clearHistoryBtn.addEventListener("click", async () => {
+  try {
+    const response = await fetch("/api/history", { method: "DELETE" });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.detail || "Failed to clear history.");
+    }
+    setStatus("History cleared.");
+    renderHistory([]);
+  } catch (err) {
+    setStatus(err.message || "Could not clear history.", true);
+  }
 });
 
-renderHistory();
+loadHistory();
+setInterval(loadHistory, 5000);
