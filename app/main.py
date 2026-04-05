@@ -11,8 +11,8 @@ from typing import Any
 from urllib.parse import urlencode
 
 import yt_dlp
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from starlette.background import BackgroundTask
@@ -208,6 +208,10 @@ def _history_response_item(entry: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _page_file(name: str) -> FileResponse:
+    return FileResponse(STATIC_DIR / name)
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -215,12 +219,62 @@ def health() -> dict[str, str]:
 
 @app.get("/")
 def root() -> FileResponse:
-    return FileResponse(STATIC_DIR / "index.html")
+    return _page_file("index.html")
+
+
+@app.get("/instagram-downloader")
+def instagram_downloader() -> FileResponse:
+    return _page_file("instagram-downloader.html")
+
+
+@app.get("/youtube-downloader")
+def youtube_downloader() -> FileResponse:
+    return _page_file("youtube-downloader.html")
+
+
+@app.get("/tiktok-downloader")
+def tiktok_downloader() -> FileResponse:
+    return _page_file("tiktok-downloader.html")
+
+
+@app.get("/twitter-downloader")
+def twitter_downloader() -> FileResponse:
+    return _page_file("twitter-downloader.html")
+
+
+@app.get("/video-to-mp3")
+def video_to_mp3() -> FileResponse:
+    return _page_file("video-to-mp3.html")
 
 
 @app.get("/dashboard")
 def dashboard() -> FileResponse:
-    return FileResponse(STATIC_DIR / "dashboard.html")
+    return _page_file("dashboard.html")
+
+
+@app.get("/sitemap.xml")
+@app.get("/sitmap.xml")
+def sitemap(request: Request) -> Response:
+    base = str(request.base_url).rstrip("/")
+    paths = [
+        "/",
+        "/instagram-downloader",
+        "/youtube-downloader",
+        "/tiktok-downloader",
+        "/twitter-downloader",
+        "/video-to-mp3",
+        "/dashboard",
+    ]
+    lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ]
+    for path in paths:
+        lines.append("  <url>")
+        lines.append(f"    <loc>{base}{path}</loc>")
+        lines.append("  </url>")
+    lines.append("</urlset>")
+    return Response(content="\n".join(lines), media_type="application/xml")
 
 
 @app.get("/api/history")
