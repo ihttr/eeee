@@ -263,7 +263,6 @@ def sitemap(request: Request) -> Response:
         "/tiktok-downloader",
         "/twitter-downloader",
         "/video-to-mp3",
-        "/dashboard",
     ]
     lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
