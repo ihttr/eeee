@@ -9,6 +9,7 @@ from typing import Any
 import yt_dlp
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
+from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from starlette.background import BackgroundTask
@@ -184,9 +185,16 @@ def root() -> FileResponse:
 def dashboard() -> FileResponse:
     return FileResponse(STATIC_DIR / "dashboard.html")
 
+
+
 @app.get("/sitemap.xml")
 def sitemap():
-    return FileResponse(STATIC_DIR / "sitemap.xml", media_type="application/xml")
+    file_path = STATIC_DIR / "sitemap.xml"
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    return Response(content=content, media_type="application/xml")
     
 @app.post("/api/info")
 def media_info(payload: InfoRequest) -> dict[str, Any]:
