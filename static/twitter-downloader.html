@@ -3,32 +3,36 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="/logo.png" type="image/png">
-    <title>Save Video - Download Twitter(X) Videos</title>
+    <title>Twitter Downloader</title>
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
-  <body>
+  <body data-page-mode="all">
     <div class="bg-orb orb-1"></div>
     <div class="bg-orb orb-2"></div>
     <main class="container">
       <header class="hero">
-        <p class="tag">Save Video</p>
-        <h1>Download Twitter(X) Videos</h1>
-        <p class="subtitle">
-          Download videos from Twitter (X) in high quality using Save Video.
-No watermark and no signup required.
-        </p>
+        <p class="tag">Twitter/X</p>
+        <h1>Twitter Video Downloader</h1>
+        <p class="subtitle">Download clips from Twitter or X links in video quality or audio format.</p>
+        <div class="tool-links">
+          <a href="/" class="tool-link">All Platforms</a>
+          <a href="/instagram-downloader" class="tool-link">Instagram</a>
+          <a href="/youtube-downloader" class="tool-link">YouTube</a>
+          <a href="/tiktok-downloader" class="tool-link">TikTok</a>
+          <a href="/video-to-mp3" class="tool-link">Video To MP3</a>
+        </div>
+        <a href="/dashboard" class="dashboard-link">Open Downloads Dashboard</a>
       </header>
 
       <section class="panel">
         <form id="analyze-form" class="url-form">
-          <label for="url-input">Video URL</label>
+          <label for="url-input">Twitter/X URL</label>
           <div class="row">
             <input
               id="url-input"
               type="url"
               required
-              placeholder="https://example.com/video"
+              placeholder="https://x.com/... or https://twitter.com/..."
               autocomplete="off"
             />
             <button id="analyze-btn" type="submit">Analyze</button>
@@ -73,10 +77,6 @@ No watermark and no signup required.
           </div>
         </section>
       </section>
-
-      <footer>
-        Use this tool only for content you own or are legally allowed to download.
-      </footer>
     </main>
 
     <script src="/static/app.js"></script>
