@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Owner Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <main class="container">
+      <header class="hero">
+        <p class="tag">Owner</p>
+        <h1>User Download Activity</h1>
+        <p class="subtitle">Track downloads by page, user IP, and device information.</p>
+        <div class="tool-links">
+          <a href="/" class="tool-link">Downloader</a>
+          <a href="/dashboard" class="tool-link">Public Dashboard</a>
+          <a href="/instagram-downloader" class="tool-link">Instagram</a>
+          <a href="/youtube-downloader" class="tool-link">YouTube</a>
+          <a href="/tiktok-downloader" class="tool-link">TikTok</a>
+          <a href="/twitter-downloader" class="tool-link">Twitter</a>
+          <a href="/video-to-mp3" class="tool-link">Video To MP3</a>
+        </div>
+      </header>
+
+      <section class="panel history-panel">
+        <div class="history-stats">
+          <article class="metric">
+            <p>Total Downloads</p>
+            <strong id="metric-total">0</strong>
+          </article>
+          <article class="metric">
+            <p>Unique Users (IP)</p>
+            <strong id="metric-users">0</strong>
+          </article>
+          <article class="metric">
+            <p>Pages Used</p>
+            <strong id="metric-pages">0</strong>
+          </article>
+        </div>
+
+        <p id="status" class="status"></p>
+
+        <div class="table-wrap">
+          <table class="history-table owner-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Page</th>
+                <th>IP</th>
+                <th>User Agent</th>
+                <th>Time</th>
+                <th>Link</th>
+              </tr>
+            </thead>
+            <tbody id="owner-history-body">
+              <tr>
+                <td colspan="7" class="history-empty">No downloads yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <script src="/static/owner-dashboard.js"></script>
+  </body>
+</html>
