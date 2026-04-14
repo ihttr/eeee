@@ -626,7 +626,6 @@ def sitemap_core(request: Request) -> Response:
         "/tiktok-downloader",
         "/twitter-downloader",
         "/video-to-mp3",
-        "/dashboard",
     ]
     return Response(content=_build_urlset_xml(base, paths, "0.8"), media_type="application/xml")
 
@@ -641,7 +640,7 @@ def sitemap_en(request: Request) -> Response:
         "/en/tiktok-downloader",
         "/en/twitter-downloader",
         "/en/video-to-mp3",
-        "/en/dashboard",
+        
     ]
     return Response(content=_build_urlset_xml(base, paths, "0.7"), media_type="application/xml")
 
@@ -656,7 +655,7 @@ def sitemap_ar(request: Request) -> Response:
         "/ar/tiktok-downloader",
         "/ar/twitter-downloader",
         "/ar/video-to-mp3",
-        "/ar/dashboard",
+        
     ]
     return Response(content=_build_urlset_xml(base, paths, "0.7"), media_type="application/xml")
 
