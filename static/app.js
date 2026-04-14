@@ -16,8 +16,98 @@ const downloadAudioBtn = document.getElementById("download-audio");
 
 const pageMode = (document.body.dataset.pageMode || "all").toLowerCase();
 const defaultAudioFormat = (document.body.dataset.defaultAudioFormat || "mp3").toLowerCase();
+const allowedHosts = (document.body.dataset.allowedHosts || "")
+  .split(",")
+  .map((x) => x.trim().toLowerCase())
+  .filter(Boolean);
 
 let currentInfo = null;
+let currentLang = localStorage.getItem("site_lang") || "en";
+
+const i18n = {
+  en: {
+    analyze: "Analyze",
+    analyzing: "Analyzing...",
+    reading: "Reading video details...",
+    ready: "Ready. Choose your options and download.",
+    readyAudio: "Ready. Choose audio stream and download.",
+    needUrl: "Please enter a video URL first.",
+    needAnalyze: "Analyze a URL first.",
+    wrongHost: "This page supports only its own platform links.",
+    genericErr: "Something went wrong.",
+    downloadVideo: "Download Video",
+    downloadAudio: "Download Audio",
+  },
+  ar: {
+    analyze: "تحليل",
+    analyzing: "جاري التحليل...",
+    reading: "جاري قراءة تفاصيل الفيديو...",
+    ready: "جاهز. اختر الإعدادات وابدأ التنزيل.",
+    readyAudio: "جاهز. اختر مسار الصوت وابدأ التنزيل.",
+    needUrl: "الرجاء إدخال رابط فيديو أولاً.",
+    needAnalyze: "قم بتحليل الرابط أولاً.",
+    wrongHost: "هذه الصفحة مخصصة للمنصة الخاصة بها فقط.",
+    genericErr: "حدث خطأ ما.",
+    downloadVideo: "تنزيل الفيديو",
+    downloadAudio: "تنزيل الصوت",
+  },
+  es: {
+    analyze: "Analizar",
+    analyzing: "Analizando...",
+    reading: "Leyendo detalles del video...",
+    ready: "Listo. Elige opciones y descarga.",
+    readyAudio: "Listo. Elige flujo de audio y descarga.",
+    needUrl: "Primero ingresa un enlace de video.",
+    needAnalyze: "Primero analiza un enlace.",
+    wrongHost: "Esta pagina solo admite enlaces de su plataforma.",
+    genericErr: "Algo salio mal.",
+    downloadVideo: "Descargar Video",
+    downloadAudio: "Descargar Audio",
+  },
+  fr: {
+    analyze: "Analyser",
+    analyzing: "Analyse en cours...",
+    reading: "Lecture des details de la video...",
+    ready: "Pret. Choisissez les options et telechargez.",
+    readyAudio: "Pret. Choisissez le flux audio et telechargez.",
+    needUrl: "Veuillez entrer un lien video d'abord.",
+    needAnalyze: "Analysez un lien d'abord.",
+    wrongHost: "Cette page accepte uniquement les liens de sa plateforme.",
+    genericErr: "Une erreur est survenue.",
+    downloadVideo: "Telecharger Video",
+    downloadAudio: "Telecharger Audio",
+  },
+  pt: {
+    analyze: "Analisar",
+    analyzing: "Analisando...",
+    reading: "Lendo detalhes do video...",
+    ready: "Pronto. Escolha as opcoes e baixe.",
+    readyAudio: "Pronto. Escolha o fluxo de audio e baixe.",
+    needUrl: "Insira primeiro um link de video.",
+    needAnalyze: "Analise um link primeiro.",
+    wrongHost: "Esta pagina aceita apenas links da propria plataforma.",
+    genericErr: "Algo deu errado.",
+    downloadVideo: "Baixar Video",
+    downloadAudio: "Baixar Audio",
+  },
+  hi: {
+    analyze: "विश्लेषण करें",
+    analyzing: "विश्लेषण हो रहा है...",
+    reading: "वीडियो विवरण पढ़ा जा रहा है...",
+    ready: "तैयार है। विकल्प चुनें और डाउनलोड करें।",
+    readyAudio: "तैयार है। ऑडियो स्ट्रीम चुनें और डाउनलोड करें।",
+    needUrl: "पहले वीडियो लिंक डालें।",
+    needAnalyze: "पहले लिंक का विश्लेषण करें।",
+    wrongHost: "यह पेज केवल अपनी प्लेटफॉर्म लिंक के लिए है।",
+    genericErr: "कुछ गलत हो गया।",
+    downloadVideo: "वीडियो डाउनलोड करें",
+    downloadAudio: "ऑडियो डाउनलोड करें",
+  },
+};
+
+function t(key) {
+  return (i18n[currentLang] || i18n.en)[key] || i18n.en[key] || key;
+}
 
 function setStatus(message, isError = false) {
   if (!statusBox) return;
@@ -58,7 +148,7 @@ function fillSelect(select, options) {
 function setLoading(loading) {
   if (!analyzeBtn) return;
   analyzeBtn.disabled = loading;
-  analyzeBtn.textContent = loading ? "Analyzing..." : "Analyze";
+  analyzeBtn.textContent = loading ? t("analyzing") : t("analyze");
 }
 
 function applyDefaultsAfterAnalyze() {
@@ -69,7 +159,7 @@ function applyDefaultsAfterAnalyze() {
 
 async function analyzeUrl(url) {
   setLoading(true);
-  setStatus("Reading video details...");
+  setStatus(t("reading"));
   if (resultSection) resultSection.classList.add("hidden");
   currentInfo = null;
 
@@ -97,12 +187,12 @@ async function analyzeUrl(url) {
 
     if (resultSection) resultSection.classList.remove("hidden");
     if (pageMode === "audio") {
-      setStatus("Ready. Choose audio stream and download.");
+      setStatus(t("readyAudio"));
     } else {
-      setStatus("Ready. Choose your options and download.");
+      setStatus(t("ready"));
     }
   } catch (err) {
-    setStatus(err.message || "Something went wrong.", true);
+    setStatus(err.message || t("genericErr"), true);
   } finally {
     setLoading(false);
   }
@@ -125,7 +215,52 @@ function buildDownloadUrl(kind) {
     params.set("audio_format", finalAudioFormat);
     params.set("format_label", `${selectedOptionLabel(audioFormatIdSelect)} -> ${finalAudioFormat.toUpperCase()}`);
   }
+  params.set("source_page", window.location.pathname || "/");
   return `/api/download?${params.toString()}`;
+}
+
+function isHostAllowed(inputUrl) {
+  if (!allowedHosts.length) return true;
+  try {
+    const u = new URL(inputUrl);
+    const host = u.hostname.toLowerCase();
+    return allowedHosts.some((allowed) => host === allowed || host.endsWith(`.${allowed}`));
+  } catch {
+    return false;
+  }
+}
+
+function applyLanguage() {
+  if (analyzeBtn) analyzeBtn.textContent = t("analyze");
+  if (downloadVideoBtn) downloadVideoBtn.textContent = t("downloadVideo");
+  if (downloadAudioBtn) downloadAudioBtn.textContent = t("downloadAudio");
+}
+
+function mountLanguageSelector() {
+  const hero = document.querySelector(".hero");
+  if (!hero) return;
+  const wrap = document.createElement("div");
+  wrap.className = "lang-wrap";
+  wrap.innerHTML = `
+    <label class="lang-label" for="lang-select">Language</label>
+    <select id="lang-select" class="lang-select">
+      <option value="en">English</option>
+      <option value="ar">العربية</option>
+      <option value="es">Español</option>
+      <option value="fr">Français</option>
+      <option value="pt">Português</option>
+      <option value="hi">हिन्दी</option>
+    </select>
+  `;
+  hero.prepend(wrap);
+  const select = wrap.querySelector("#lang-select");
+  if (!i18n[currentLang]) currentLang = "en";
+  select.value = currentLang;
+  select.addEventListener("change", () => {
+    currentLang = select.value;
+    localStorage.setItem("site_lang", currentLang);
+    applyLanguage();
+  });
 }
 
 if (form && urlInput) {
@@ -133,7 +268,11 @@ if (form && urlInput) {
     event.preventDefault();
     const url = urlInput.value.trim();
     if (!url) {
-      setStatus("Please enter a video URL first.", true);
+      setStatus(t("needUrl"), true);
+      return;
+    }
+    if (!isHostAllowed(url)) {
+      setStatus(t("wrongHost"), true);
       return;
     }
     await analyzeUrl(url);
@@ -144,7 +283,7 @@ if (downloadVideoBtn) {
   downloadVideoBtn.addEventListener("click", () => {
     const target = buildDownloadUrl("video");
     if (!target) {
-      setStatus("Analyze a URL first.", true);
+      setStatus(t("needAnalyze"), true);
       return;
     }
     window.open(target, "_blank", "noopener,noreferrer");
@@ -155,7 +294,7 @@ if (downloadAudioBtn) {
   downloadAudioBtn.addEventListener("click", () => {
     const target = buildDownloadUrl("audio");
     if (!target) {
-      setStatus("Analyze a URL first.", true);
+      setStatus(t("needAnalyze"), true);
       return;
     }
     window.open(target, "_blank", "noopener,noreferrer");
@@ -165,3 +304,6 @@ if (downloadAudioBtn) {
 if (audioFileFormatSelect && hasOption(audioFileFormatSelect, defaultAudioFormat)) {
   audioFileFormatSelect.value = defaultAudioFormat;
 }
+
+mountLanguageSelector();
+applyLanguage();
