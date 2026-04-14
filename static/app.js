@@ -40,7 +40,6 @@ const i18n = {
     downloadAudio: "Download Audio",
   },
   ar: {
-    subtitle: "ببببببببببببببببب",
     analyze: "تحليل",
     analyzing: "جاري التحليل...",
     reading: "جاري قراءة تفاصيل الفيديو...",
@@ -318,8 +317,6 @@ function applyLanguage() {
   document.documentElement.setAttribute("dir", currentLang === "ar" ? "rtl" : "ltr");
 }
 
-
-
 if (form && urlInput) {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -362,5 +359,5 @@ if (audioFileFormatSelect && hasOption(audioFileFormatSelect, defaultAudioFormat
   audioFileFormatSelect.value = defaultAudioFormat;
 }
 
-mountLanguageSelector();
+if (!i18n[currentLang]) currentLang = "en";
 applyLanguage();
