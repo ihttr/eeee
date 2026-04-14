@@ -22,7 +22,8 @@ const allowedHosts = (document.body.dataset.allowedHosts || "")
   .filter(Boolean);
 
 let currentInfo = null;
-let currentLang = localStorage.getItem("site_lang") || "en";
+const routeDefaultLang = (document.body.dataset.defaultLang || "").toLowerCase();
+let currentLang = routeDefaultLang || localStorage.getItem("site_lang") || "en";
 
 const i18n = {
   en: {
