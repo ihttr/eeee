@@ -103,6 +103,84 @@ const i18n = {
     downloadVideo: "वीडियो डाउनलोड करें",
     downloadAudio: "ऑडियो डाउनलोड करें",
   },
+  zh: {
+    analyze: "分析",
+    analyzing: "正在分析...",
+    reading: "正在读取视频详情...",
+    ready: "准备好了。请选择选项并下载。",
+    readyAudio: "准备好了。请选择音频流并下载。",
+    needUrl: "请先输入视频链接。",
+    needAnalyze: "请先分析链接。",
+    wrongHost: "此页面仅支持其对应平台的链接。",
+    genericErr: "发生错误。",
+    downloadVideo: "下载视频",
+    downloadAudio: "下载音频",
+  },
+  ru: {
+    analyze: "Анализ",
+    analyzing: "Анализируем...",
+    reading: "Читаем данные видео...",
+    ready: "Готово. Выберите параметры и скачайте.",
+    readyAudio: "Готово. Выберите аудиопоток и скачайте.",
+    needUrl: "Сначала вставьте ссылку на видео.",
+    needAnalyze: "Сначала проанализируйте ссылку.",
+    wrongHost: "Эта страница поддерживает только ссылки своей платформы.",
+    genericErr: "Что-то пошло не так.",
+    downloadVideo: "Скачать видео",
+    downloadAudio: "Скачать аудио",
+  },
+  de: {
+    analyze: "Analysieren",
+    analyzing: "Wird analysiert...",
+    reading: "Videodetails werden gelesen...",
+    ready: "Fertig. Optionen waehlen und herunterladen.",
+    readyAudio: "Fertig. Audiostream waehlen und herunterladen.",
+    needUrl: "Bitte zuerst einen Videolink eingeben.",
+    needAnalyze: "Bitte zuerst den Link analysieren.",
+    wrongHost: "Diese Seite erlaubt nur Links der eigenen Plattform.",
+    genericErr: "Etwas ist schiefgelaufen.",
+    downloadVideo: "Video herunterladen",
+    downloadAudio: "Audio herunterladen",
+  },
+  id: {
+    analyze: "Analisis",
+    analyzing: "Sedang menganalisis...",
+    reading: "Membaca detail video...",
+    ready: "Siap. Pilih opsi dan unduh.",
+    readyAudio: "Siap. Pilih stream audio dan unduh.",
+    needUrl: "Masukkan tautan video terlebih dahulu.",
+    needAnalyze: "Analisis tautan terlebih dahulu.",
+    wrongHost: "Halaman ini hanya mendukung tautan platformnya sendiri.",
+    genericErr: "Terjadi kesalahan.",
+    downloadVideo: "Unduh Video",
+    downloadAudio: "Unduh Audio",
+  },
+  tr: {
+    analyze: "Analiz Et",
+    analyzing: "Analiz ediliyor...",
+    reading: "Video ayrintilari okunuyor...",
+    ready: "Hazir. Secenekleri belirleyip indirin.",
+    readyAudio: "Hazir. Ses akisını secip indirin.",
+    needUrl: "Lutfen once bir video baglantisi girin.",
+    needAnalyze: "Lutfen once baglantiyi analiz edin.",
+    wrongHost: "Bu sayfa sadece kendi platform baglantilarini destekler.",
+    genericErr: "Bir hata olustu.",
+    downloadVideo: "Videoyu Indir",
+    downloadAudio: "Sesi Indir",
+  },
+  ja: {
+    analyze: "解析",
+    analyzing: "解析中...",
+    reading: "動画の詳細を取得中...",
+    ready: "準備完了。オプションを選んでダウンロードしてください。",
+    readyAudio: "準備完了。音声ストリームを選んでダウンロードしてください。",
+    needUrl: "先に動画URLを入力してください。",
+    needAnalyze: "先にURLを解析してください。",
+    wrongHost: "このページは対応プラットフォームのリンクのみ利用できます。",
+    genericErr: "エラーが発生しました。",
+    downloadVideo: "動画をダウンロード",
+    downloadAudio: "音声をダウンロード",
+  },
 };
 
 function t(key) {
@@ -234,6 +312,8 @@ function applyLanguage() {
   if (analyzeBtn) analyzeBtn.textContent = t("analyze");
   if (downloadVideoBtn) downloadVideoBtn.textContent = t("downloadVideo");
   if (downloadAudioBtn) downloadAudioBtn.textContent = t("downloadAudio");
+  document.documentElement.setAttribute("lang", currentLang);
+  document.documentElement.setAttribute("dir", currentLang === "ar" ? "rtl" : "ltr");
 }
 
 function mountLanguageSelector() {
@@ -250,6 +330,12 @@ function mountLanguageSelector() {
       <option value="fr">Français</option>
       <option value="pt">Português</option>
       <option value="hi">हिन्दी</option>
+      <option value="zh">中文</option>
+      <option value="ru">Русский</option>
+      <option value="de">Deutsch</option>
+      <option value="id">Bahasa Indonesia</option>
+      <option value="tr">Türkçe</option>
+      <option value="ja">日本語</option>
     </select>
   `;
   hero.prepend(wrap);
