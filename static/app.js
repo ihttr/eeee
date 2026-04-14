@@ -40,6 +40,7 @@ const i18n = {
     downloadAudio: "Download Audio",
   },
   ar: {
+    subtitle: "ببببببببببببببببب",
     analyze: "تحليل",
     analyzing: "جاري التحليل...",
     reading: "جاري قراءة تفاصيل الفيديو...",
@@ -317,38 +318,7 @@ function applyLanguage() {
   document.documentElement.setAttribute("dir", currentLang === "ar" ? "rtl" : "ltr");
 }
 
-function mountLanguageSelector() {
-  const hero = document.querySelector(".hero");
-  if (!hero) return;
-  const wrap = document.createElement("div");
-  wrap.className = "lang-wrap";
-  wrap.innerHTML = `
-    <label class="lang-label" for="lang-select">Language</label>
-    <select id="lang-select" class="lang-select">
-      <option value="en">English</option>
-      <option value="ar">العربية</option>
-      <option value="es">Español</option>
-      <option value="fr">Français</option>
-      <option value="pt">Português</option>
-      <option value="hi">हिन्दी</option>
-      <option value="zh">中文</option>
-      <option value="ru">Русский</option>
-      <option value="de">Deutsch</option>
-      <option value="id">Bahasa Indonesia</option>
-      <option value="tr">Türkçe</option>
-      <option value="ja">日本語</option>
-    </select>
-  `;
-  hero.prepend(wrap);
-  const select = wrap.querySelector("#lang-select");
-  if (!i18n[currentLang]) currentLang = "en";
-  select.value = currentLang;
-  select.addEventListener("change", () => {
-    currentLang = select.value;
-    localStorage.setItem("site_lang", currentLang);
-    applyLanguage();
-  });
-}
+
 
 if (form && urlInput) {
   form.addEventListener("submit", async (event) => {
