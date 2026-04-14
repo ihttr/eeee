@@ -205,7 +205,19 @@ def _history_response_item(entry: dict[str, Any]) -> dict[str, Any]:
         "format": entry.get("format") or "Auto",
         "created_at": entry.get("created_at"),
         "download_url": _download_url_from_entry(entry),
+        "source_page": entry.get("source_page"),
+        "client_ip": entry.get("client_ip"),
+        "user_agent": entry.get("user_agent"),
     }
+
+
+def _client_ip(request: Request) -> str:
+    forwarded = request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+    if forwarded:
+        return forwarded[:80]
+    if request.client and request.client.host:
+        return request.client.host[:80]
+    return "unknown"
 
 
 def _page_file(name: str) -> FileResponse:
@@ -221,44 +233,59 @@ def health() -> dict[str, str]:
 def root() -> FileResponse:
     return _page_file("index.html")
 
+
 @app.get("/favicon.ico")
 def favicon() -> FileResponse:
     return _page_file("favicon.ico")
 
+
 @app.get("/instagram-downloader")
+@app.get("/instagram-downloader/")
 def instagram_downloader() -> FileResponse:
     return _page_file("instagram-downloader.html")
 
 
 @app.get("/youtube-downloader")
+@app.get("/youtube-downloader/")
 def youtube_downloader() -> FileResponse:
     return _page_file("youtube-downloader.html")
 
 
 @app.get("/tiktok-downloader")
+@app.get("/tiktok-downloader/")
 def tiktok_downloader() -> FileResponse:
     return _page_file("tiktok-downloader.html")
 
 
 @app.get("/twitter-downloader")
+@app.get("/twitter-downloader/")
 def twitter_downloader() -> FileResponse:
     return _page_file("twitter-downloader.html")
 
 
 @app.get("/video-to-mp3")
+@app.get("/video-to-mp3/")
 def video_to_mp3() -> FileResponse:
     return _page_file("video-to-mp3.html")
 
 
 @app.get("/dashboard")
+@app.get("/dashboard/")
 def dashboard() -> FileResponse:
     return _page_file("dashboard.html")
+
+
+@app.get("/owner-dashboard")
+@app.get("/owner-dashboard/")
+def owner_dashboard() -> FileResponse:
+    return _page_file("owner-dashboard.html")
 
 
 @app.get("/sitemap.xml")
 @app.get("/sitmap.xml")
 def sitemap(request: Request) -> Response:
     base = str(request.base_url).rstrip("/")
+    lastmod = datetime.now(timezone.utc).date().isoformat()
     paths = [
         "/",
         "/instagram-downloader",
@@ -267,6 +294,7 @@ def sitemap(request: Request) -> Response:
         "/twitter-downloader",
         "/video-to-mp3",
         "/dashboard",
+        "/owner-dashboard",
     ]
     lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
@@ -275,9 +303,25 @@ def sitemap(request: Request) -> Response:
     for path in paths:
         lines.append("  <url>")
         lines.append(f"    <loc>{base}{path}</loc>")
+        lines.append(f"    <lastmod>{lastmod}</lastmod>")
+        lines.append("    <changefreq>daily</changefreq>")
+        lines.append("    <priority>0.8</priority>")
         lines.append("  </url>")
     lines.append("</urlset>")
     return Response(content="\n".join(lines), media_type="application/xml")
+
+
+@app.get("/robots.txt")
+def robots(request: Request) -> Response:
+    base = str(request.base_url).rstrip("/")
+    content = "\n".join(
+        [
+            "User-agent: *",
+            "Allow: /",
+            f"Sitemap: {base}/sitemap.xml",
+        ]
+    )
+    return Response(content=content, media_type="text/plain")
 
 
 @app.get("/api/history")
@@ -321,11 +365,13 @@ def media_info(payload: InfoRequest) -> dict[str, Any]:
 
 @app.get("/api/download")
 def download(
+    request: Request,
     url: str,
     kind: str = "video",
     format_id: str = "best",
     audio_format: str = "mp3",
     format_label: str | None = None,
+    source_page: str | None = None,
 ) -> FileResponse:
     url = _validate_url(url)
     kind = kind.lower().strip()
@@ -393,6 +439,9 @@ def download(
             "audio_format": audio_format if kind == "audio" else None,
             "format": display_format[:180],
             "created_at": datetime.now(timezone.utc).isoformat(),
+            "source_page": (source_page or "unknown")[:80],
+            "client_ip": _client_ip(request),
+            "user_agent": (request.headers.get("user-agent") or "unknown")[:240],
         }
     )
 
