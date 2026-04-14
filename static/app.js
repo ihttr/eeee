@@ -246,7 +246,7 @@ async function analyzeUrl(url) {
     const response = await fetch("/api/info", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url }),
+      body: JSON.stringify({ url, source_page: window.location.pathname || "/" }),
     });
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.detail || "Failed to analyze URL.");
