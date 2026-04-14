@@ -12,7 +12,7 @@ from urllib.parse import urlencode
 
 import yt_dlp
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from starlette.background import BackgroundTask
@@ -24,6 +24,7 @@ TMP_DIR.mkdir(parents=True, exist_ok=True)
 HISTORY_FILE = TMP_DIR / "history.json"
 HISTORY_LOCK = threading.Lock()
 MAX_HISTORY_ITEMS = 300
+SUPPORTED_ROUTE_LANGS = {"en", "ar"}
 
 app = FastAPI(title="Media Downloader", version="1.0.0")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
@@ -224,6 +225,41 @@ def _page_file(name: str) -> FileResponse:
     return FileResponse(STATIC_DIR / name)
 
 
+def _localized_page_html(name: str, lang: str) -> HTMLResponse:
+    lang = (lang or "en").lower()
+    if lang not in SUPPORTED_ROUTE_LANGS:
+        lang = "en"
+
+    html = (STATIC_DIR / name).read_text(encoding="utf-8")
+    html = re.sub(r"<html lang=\"[^\"]+\">", f"<html lang=\"{lang}\">", html, count=1)
+
+    def body_replacer(match: re.Match[str]) -> str:
+        attrs = match.group(1)
+        if 'data-default-lang="' in attrs:
+            attrs = re.sub(r'data-default-lang="[^"]+"', f'data-default-lang="{lang}"', attrs, count=1)
+        else:
+            attrs = f'{attrs} data-default-lang="{lang}"'
+        return f"<body{attrs}>"
+
+    html = re.sub(r"<body([^>]*)>", body_replacer, html, count=1)
+
+    internal_paths = [
+        "/",
+        "/dashboard",
+        "/owner-dashboard",
+        "/instagram-downloader",
+        "/youtube-downloader",
+        "/tiktok-downloader",
+        "/twitter-downloader",
+        "/video-to-mp3",
+    ]
+    for path in internal_paths:
+        localized_target = f"/{lang}" if path == "/" else f"/{lang}{path}"
+        html = html.replace(f'href="{path}"', f'href="{localized_target}"')
+
+    return HTMLResponse(content=html)
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -281,6 +317,102 @@ def owner_dashboard() -> FileResponse:
     return _page_file("owner-dashboard.html")
 
 
+@app.get("/en")
+@app.get("/en/")
+def english_home() -> HTMLResponse:
+    return _localized_page_html("index.html", "en")
+
+
+@app.get("/ar")
+@app.get("/ar/")
+def arabic_home() -> HTMLResponse:
+    return _localized_page_html("index.html", "ar")
+
+
+@app.get("/en/instagram-downloader")
+@app.get("/en/instagram-downloader/")
+def english_instagram() -> HTMLResponse:
+    return _localized_page_html("instagram-downloader.html", "en")
+
+
+@app.get("/ar/instagram-downloader")
+@app.get("/ar/instagram-downloader/")
+def arabic_instagram() -> HTMLResponse:
+    return _localized_page_html("instagram-downloader.html", "ar")
+
+
+@app.get("/en/youtube-downloader")
+@app.get("/en/youtube-downloader/")
+def english_youtube() -> HTMLResponse:
+    return _localized_page_html("youtube-downloader.html", "en")
+
+
+@app.get("/ar/youtube-downloader")
+@app.get("/ar/youtube-downloader/")
+def arabic_youtube() -> HTMLResponse:
+    return _localized_page_html("youtube-downloader.html", "ar")
+
+
+@app.get("/en/tiktok-downloader")
+@app.get("/en/tiktok-downloader/")
+def english_tiktok() -> HTMLResponse:
+    return _localized_page_html("tiktok-downloader.html", "en")
+
+
+@app.get("/ar/tiktok-downloader")
+@app.get("/ar/tiktok-downloader/")
+def arabic_tiktok() -> HTMLResponse:
+    return _localized_page_html("tiktok-downloader.html", "ar")
+
+
+@app.get("/en/twitter-downloader")
+@app.get("/en/twitter-downloader/")
+def english_twitter() -> HTMLResponse:
+    return _localized_page_html("twitter-downloader.html", "en")
+
+
+@app.get("/ar/twitter-downloader")
+@app.get("/ar/twitter-downloader/")
+def arabic_twitter() -> HTMLResponse:
+    return _localized_page_html("twitter-downloader.html", "ar")
+
+
+@app.get("/en/video-to-mp3")
+@app.get("/en/video-to-mp3/")
+def english_mp3() -> HTMLResponse:
+    return _localized_page_html("video-to-mp3.html", "en")
+
+
+@app.get("/ar/video-to-mp3")
+@app.get("/ar/video-to-mp3/")
+def arabic_mp3() -> HTMLResponse:
+    return _localized_page_html("video-to-mp3.html", "ar")
+
+
+@app.get("/en/dashboard")
+@app.get("/en/dashboard/")
+def english_dashboard() -> HTMLResponse:
+    return _localized_page_html("dashboard.html", "en")
+
+
+@app.get("/ar/dashboard")
+@app.get("/ar/dashboard/")
+def arabic_dashboard() -> HTMLResponse:
+    return _localized_page_html("dashboard.html", "ar")
+
+
+@app.get("/en/owner-dashboard")
+@app.get("/en/owner-dashboard/")
+def english_owner_dashboard() -> HTMLResponse:
+    return _localized_page_html("owner-dashboard.html", "en")
+
+
+@app.get("/ar/owner-dashboard")
+@app.get("/ar/owner-dashboard/")
+def arabic_owner_dashboard() -> HTMLResponse:
+    return _localized_page_html("owner-dashboard.html", "ar")
+
+
 @app.get("/sitemap.xml")
 @app.get("/sitmap.xml")
 def sitemap(request: Request) -> Response:
@@ -295,6 +427,22 @@ def sitemap(request: Request) -> Response:
         "/video-to-mp3",
         "/dashboard",
         "/owner-dashboard",
+        "/en",
+        "/en/instagram-downloader",
+        "/en/youtube-downloader",
+        "/en/tiktok-downloader",
+        "/en/twitter-downloader",
+        "/en/video-to-mp3",
+        "/en/dashboard",
+        "/en/owner-dashboard",
+        "/ar",
+        "/ar/instagram-downloader",
+        "/ar/youtube-downloader",
+        "/ar/tiktok-downloader",
+        "/ar/twitter-downloader",
+        "/ar/video-to-mp3",
+        "/ar/dashboard",
+        "/ar/owner-dashboard",
     ]
     lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
