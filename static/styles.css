@@ -95,6 +95,27 @@ h2 {
   gap: 8px;
 }
 
+.lang-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.lang-label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.lang-select {
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(7, 12, 23, 0.9);
+  color: var(--text);
+  padding: 6px 10px;
+  min-width: 140px;
+}
+
 .tool-link {
   text-decoration: none;
   color: var(--text);
@@ -327,6 +348,10 @@ button:disabled {
   min-width: 780px;
 }
 
+.owner-table {
+  min-width: 1100px;
+}
+
 .history-table th,
 .history-table td {
   text-align: left;
@@ -395,6 +420,12 @@ button:disabled {
 
 .history-empty {
   color: var(--muted);
+}
+
+.owner-agent {
+  max-width: 380px;
+  white-space: normal;
+  word-break: break-word;
 }
 
 footer {
