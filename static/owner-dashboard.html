@@ -39,9 +39,14 @@
             <p>Pages Used</p>
             <strong id="metric-pages">0</strong>
           </article>
+          <article class="metric">
+            <p>Failed Downloads</p>
+            <strong id="metric-failures">0</strong>
+          </article>
         </div>
 
         <p id="status" class="status"></p>
+        <p id="monitoring-meta" class="status"></p>
 
         <div class="table-wrap">
           <table class="history-table owner-table">
@@ -59,6 +64,31 @@
             <tbody id="owner-history-body">
               <tr>
                 <td colspan="7" class="history-empty">No downloads yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="page-actions">
+          <h2>Failed Download Log</h2>
+          <button id="clear-failures" type="button" class="ghost-btn">Clear Failures</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="history-table owner-table">
+            <thead>
+              <tr>
+                <th>Stage</th>
+                <th>Error</th>
+                <th>Page</th>
+                <th>IP</th>
+                <th>Time</th>
+                <th>Link</th>
+              </tr>
+            </thead>
+            <tbody id="owner-failures-body">
+              <tr>
+                <td colspan="6" class="history-empty">No failures yet.</td>
               </tr>
             </tbody>
           </table>
