@@ -250,9 +250,9 @@ def video_to_mp3() -> FileResponse:
     return _page_file("video-to-mp3.html")
 
 
-@app.get("/dashboard")
-def dashboard() -> FileResponse:
-    return _page_file("dashboard.html")
+@app.get("/owner-dashboard")
+def owner_dashboard() -> FileResponse:
+    return _page_file("owner-dashboard.html")
 
 
 @app.get("/sitemap.xml")
