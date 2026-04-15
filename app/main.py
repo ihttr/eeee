@@ -577,7 +577,7 @@ def owner_dashboard(request: Request) -> HTMLResponse:
 # @app.get("/ar/owner-dashboard")
 # @app.get("/ar/owner-dashboard/")
 # def arabic_owner_dashboard(request: Request) -> HTMLResponse:
-#     return _render_page_html("owner-dashboard.html", request, "ar")
+    # return _render_page_html("owner-dashboard.html", request, "ar")
 
 
 def _build_urlset_xml(base: str, paths: list[str], priority: str = "0.8") -> str:
@@ -602,7 +602,7 @@ def _build_urlset_xml(base: str, paths: list[str], priority: str = "0.8") -> str
 def sitemap_index(request: Request) -> Response:
     base = str(request.base_url).rstrip("/")
     lastmod = datetime.now(timezone.utc).date().isoformat()
-    sitemaps = ["/sitemap-core.xml", "/sitemap-en.xml", "/sitemap-ar.xml"]
+    sitemaps = ["/sitemap-core.xml" ]#"/sitemap-en.xml", "/sitemap-ar.xml"]
     lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
