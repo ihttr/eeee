@@ -290,7 +290,7 @@ button:disabled {
 .history-stats {
   margin-top: 16px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
 }
 
@@ -325,10 +325,6 @@ button:disabled {
   width: 100%;
   border-collapse: collapse;
   min-width: 780px;
-}
-
-.owner-table {
-  min-width: 1100px;
 }
 
 .history-table th,
@@ -399,12 +395,6 @@ button:disabled {
 
 .history-empty {
   color: var(--muted);
-}
-
-.owner-agent {
-  max-width: 380px;
-  white-space: normal;
-  word-break: break-word;
 }
 
 footer {
