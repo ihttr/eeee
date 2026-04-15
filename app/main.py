@@ -30,374 +30,375 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
 class InfoRequest(BaseModel):
-url: str
+    url: str
 
 
 def _validate_url(url: str) -> str:
-candidate = url.strip()
-if not re.match(r"^https?://", candidate, flags=re.IGNORECASE):
-raise HTTPException(status_code=400, detail="Only http/https URLs are allowed.")
-return candidate
+    candidate = url.strip()
+    if not re.match(r"^https?://", candidate, flags=re.IGNORECASE):
+        raise HTTPException(status_code=400, detail="Only http/https URLs are allowed.")
+    return candidate
 
 
 def _as_megabytes(size: int | None) -> str | None:
-if not size:
-return None
-return f"{size / (1024 * 1024):.1f} MB"
+    if not size:
+        return None
+    return f"{size / (1024 * 1024):.1f} MB"
 
 
 def _clean_name(name: str) -> str:
-cleaned = re.sub(r"[^\w\-. ]+", "", name, flags=re.ASCII).strip()
-return cleaned[:120] or "download"
+    cleaned = re.sub(r"[^\w\-. ]+", "", name, flags=re.ASCII).strip()
+    return cleaned[:120] or "download"
 
 
 def _extract_info(url: str) -> dict[str, Any]:
-ydl_opts = {
-"quiet": True,
-"no_warnings": True,
-"noplaylist": True,
-"skip_download": True,
-}
-with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-info = ydl.extract_info(url, download=False)
-if not isinstance(info, dict):
-raise HTTPException(status_code=400, detail="Could not read media information.")
-if info.get("_type") == "playlist":
-entries = info.get("entries") or []
-first = next((entry for entry in entries if entry), None)
-if not first:
-raise HTTPException(status_code=400, detail="Playlist has no downloadable entries.")
-return first
-return info
+    ydl_opts = {
+        "quiet": True,
+        "no_warnings": True,
+        "noplaylist": True,
+        "skip_download": True,
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)
+    if not isinstance(info, dict):
+        raise HTTPException(status_code=400, detail="Could not read media information.")
+    if info.get("_type") == "playlist":
+        entries = info.get("entries") or []
+        first = next((entry for entry in entries if entry), None)
+        if not first:
+            raise HTTPException(status_code=400, detail="Playlist has no downloadable entries.")
+        return first
+    return info
 
 
 def _video_options(formats: list[dict[str, Any]]) -> list[dict[str, Any]]:
-items: list[dict[str, Any]] = []
-seen: set[str] = set()
+    items: list[dict[str, Any]] = []
+    seen: set[str] = set()
 
-for fmt in formats:
-format_id = fmt.get("format_id")
-if not format_id or format_id in seen:
-continue
-if fmt.get("vcodec") == "none" or fmt.get("acodec") == "none":
-continue
+    for fmt in formats:
+        format_id = fmt.get("format_id")
+        if not format_id or format_id in seen:
+            continue
+        if fmt.get("vcodec") == "none" or fmt.get("acodec") == "none":
+            continue
 
-seen.add(format_id)
-height = fmt.get("height")
-fps = fmt.get("fps")
-ext = str(fmt.get("ext", "mp4")).upper()
-size = fmt.get("filesize") or fmt.get("filesize_approx")
+        seen.add(format_id)
+        height = fmt.get("height")
+        fps = fmt.get("fps")
+        ext = str(fmt.get("ext", "mp4")).upper()
+        size = fmt.get("filesize") or fmt.get("filesize_approx")
 
-label_parts = []
-label_parts.append(f"{height}p" if height else "Unknown quality")
-label_parts.append(ext)
-if fps and int(fps) > 30:
-label_parts.append(f"{int(fps)}fps")
-size_label = _as_megabytes(size)
-if size_label:
-label_parts.append(size_label)
+        label_parts = []
+        label_parts.append(f"{height}p" if height else "Unknown quality")
+        label_parts.append(ext)
+        if fps and int(fps) > 30:
+            label_parts.append(f"{int(fps)}fps")
+        size_label = _as_megabytes(size)
+        if size_label:
+            label_parts.append(size_label)
 
-items.append(
-{
-"format_id": format_id,
-"height": int(height or 0),
-"ext": str(fmt.get("ext", "mp4")),
-"filesize": int(size or 0),
-"label": " | ".join(label_parts),
-}
-)
+        items.append(
+            {
+                "format_id": format_id,
+                "height": int(height or 0),
+                "ext": str(fmt.get("ext", "mp4")),
+                "filesize": int(size or 0),
+                "label": " | ".join(label_parts),
+            }
+        )
 
-items.sort(key=lambda x: (x["height"], x["filesize"]), reverse=True)
-return [{"format_id": "best", "label": "Best available (auto)"}] + [
-{"format_id": f["format_id"], "label": f["label"]} for f in items
-]
+    items.sort(key=lambda x: (x["height"], x["filesize"]), reverse=True)
+    return [{"format_id": "best", "label": "Best available (auto)"}] + [
+        {"format_id": f["format_id"], "label": f["label"]} for f in items
+    ]
 
 
 def _audio_options(formats: list[dict[str, Any]]) -> list[dict[str, Any]]:
-items: list[dict[str, Any]] = []
-seen: set[str] = set()
+    items: list[dict[str, Any]] = []
+    seen: set[str] = set()
 
-for fmt in formats:
-format_id = fmt.get("format_id")
-if not format_id or format_id in seen:
-continue
-if fmt.get("acodec") == "none" or fmt.get("vcodec") != "none":
-continue
+    for fmt in formats:
+        format_id = fmt.get("format_id")
+        if not format_id or format_id in seen:
+            continue
+        if fmt.get("acodec") == "none" or fmt.get("vcodec") != "none":
+            continue
 
-seen.add(format_id)
-abr = fmt.get("abr")
-ext = str(fmt.get("ext", "m4a")).upper()
-size = fmt.get("filesize") or fmt.get("filesize_approx")
+        seen.add(format_id)
+        abr = fmt.get("abr")
+        ext = str(fmt.get("ext", "m4a")).upper()
+        size = fmt.get("filesize") or fmt.get("filesize_approx")
 
-label_parts = []
-label_parts.append(f"{int(abr)} kbps" if abr else "Audio")
-label_parts.append(ext)
-size_label = _as_megabytes(size)
-if size_label:
-label_parts.append(size_label)
+        label_parts = []
+        label_parts.append(f"{int(abr)} kbps" if abr else "Audio")
+        label_parts.append(ext)
+        size_label = _as_megabytes(size)
+        if size_label:
+            label_parts.append(size_label)
 
-items.append(
-{
-"format_id": format_id,
-"abr": float(abr or 0),
-"filesize": int(size or 0),
-"label": " | ".join(label_parts),
-}
-)
+        items.append(
+            {
+                "format_id": format_id,
+                "abr": float(abr or 0),
+                "filesize": int(size or 0),
+                "label": " | ".join(label_parts),
+            }
+        )
 
-items.sort(key=lambda x: (x["abr"], x["filesize"]), reverse=True)
-return [{"format_id": "bestaudio", "label": "Best audio (auto)"}] + [
-{"format_id": f["format_id"], "label": f["label"]} for f in items
-]
+    items.sort(key=lambda x: (x["abr"], x["filesize"]), reverse=True)
+    return [{"format_id": "bestaudio", "label": "Best audio (auto)"}] + [
+        {"format_id": f["format_id"], "label": f["label"]} for f in items
+    ]
 
 
 def _latest_file(path: Path) -> Path:
-files = [p for p in path.glob("*") if p.is_file()]
-if not files:
-raise HTTPException(status_code=500, detail="Download finished, but file was not found.")
-return max(files, key=lambda p: p.stat().st_size)
+    files = [p for p in path.glob("*") if p.is_file()]
+    if not files:
+        raise HTTPException(status_code=500, detail="Download finished, but file was not found.")
+    return max(files, key=lambda p: p.stat().st_size)
 
 
 def _read_history_nolock() -> list[dict[str, Any]]:
-if not HISTORY_FILE.exists():
-return []
-try:
-raw = json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
-except Exception:
-return []
-if not isinstance(raw, list):
-return []
-items: list[dict[str, Any]] = []
-for entry in raw:
-if isinstance(entry, dict):
-items.append(entry)
-return items
+    if not HISTORY_FILE.exists():
+        return []
+    try:
+        raw = json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    if not isinstance(raw, list):
+        return []
+    items: list[dict[str, Any]] = []
+    for entry in raw:
+        if isinstance(entry, dict):
+            items.append(entry)
+    return items
 
 
 def _write_history_nolock(items: list[dict[str, Any]]) -> None:
-HISTORY_FILE.write_text(json.dumps(items, ensure_ascii=True), encoding="utf-8")
+    HISTORY_FILE.write_text(json.dumps(items, ensure_ascii=True), encoding="utf-8")
 
 
 def _append_history_entry(entry: dict[str, Any]) -> None:
-with HISTORY_LOCK:
-items = _read_history_nolock()
-items.insert(0, entry)
-_write_history_nolock(items[:MAX_HISTORY_ITEMS])
+    with HISTORY_LOCK:
+        items = _read_history_nolock()
+        items.insert(0, entry)
+        _write_history_nolock(items[:MAX_HISTORY_ITEMS])
 
 
 def _download_url_from_entry(entry: dict[str, Any]) -> str:
-params = {
-"url": str(entry.get("source_url") or ""),
-"kind": str(entry.get("kind") or "video"),
-"format_id": str(entry.get("format_id") or "best"),
-}
-if params["kind"] == "audio":
-params["audio_format"] = str(entry.get("audio_format") or "mp3")
-return f"/api/download?{urlencode(params)}"
+    params = {
+        "url": str(entry.get("source_url") or ""),
+        "kind": str(entry.get("kind") or "video"),
+        "format_id": str(entry.get("format_id") or "best"),
+    }
+    if params["kind"] == "audio":
+        params["audio_format"] = str(entry.get("audio_format") or "mp3")
+    return f"/api/download?{urlencode(params)}"
 
 
 def _history_response_item(entry: dict[str, Any]) -> dict[str, Any]:
-return {
-"id": entry.get("id"),
-"title": entry.get("title") or "Untitled media",
-"source_url": entry.get("source_url"),
-"kind": entry.get("kind") or "video",
-"format": entry.get("format") or "Auto",
-"created_at": entry.get("created_at"),
-"download_url": _download_url_from_entry(entry),
-}
+    return {
+        "id": entry.get("id"),
+        "title": entry.get("title") or "Untitled media",
+        "source_url": entry.get("source_url"),
+        "kind": entry.get("kind") or "video",
+        "format": entry.get("format") or "Auto",
+        "created_at": entry.get("created_at"),
+        "download_url": _download_url_from_entry(entry),
+    }
 
 
 def _page_file(name: str) -> FileResponse:
-return FileResponse(STATIC_DIR / name)
+    return FileResponse(STATIC_DIR / name)
 
 
 @app.get("/health")
 def health() -> dict[str, str]:
-return {"status": "ok"}
+    return {"status": "ok"}
 
 
 @app.get("/")
 def root() -> FileResponse:
-return _page_file("index.html")
+    return _page_file("index.html")
 
 @app.get("/favicon.ico")
 def favicon() -> FileResponse:
-return _page_file("favicon.ico")
+    return _page_file("favicon.ico")
 
 @app.get("/instagram-downloader")
 def instagram_downloader() -> FileResponse:
-return _page_file("instagram-downloader.html")
+    return _page_file("instagram-downloader.html")
 
 
 @app.get("/youtube-downloader")
 def youtube_downloader() -> FileResponse:
-return _page_file("youtube-downloader.html")
+    return _page_file("youtube-downloader.html")
 
 
 @app.get("/tiktok-downloader")
 def tiktok_downloader() -> FileResponse:
-return _page_file("tiktok-downloader.html")
+    return _page_file("tiktok-downloader.html")
 
 
 @app.get("/twitter-downloader")
 def twitter_downloader() -> FileResponse:
-return _page_file("twitter-downloader.html")
+    return _page_file("twitter-downloader.html")
 
 
 @app.get("/video-to-mp3")
 def video_to_mp3() -> FileResponse:
-return _page_file("video-to-mp3.html")
+    return _page_file("video-to-mp3.html")
 
 
 @app.get("/dashboard")
 def dashboard() -> FileResponse:
-return _page_file("dashboard.html")
+    return _page_file("dashboard.html")
 
 
 @app.get("/sitemap.xml")
 @app.get("/sitmap.xml")
 def sitemap(request: Request) -> Response:
-base = str(request.base_url).rstrip("/")
-paths = [
-"/",
-"/instagram-downloader",
-"/youtube-downloader",
-"/tiktok-downloader",
-"/twitter-downloader",
-"/video-to-mp3",
-]
-lines = [
-'<?xml version="1.0" encoding="UTF-8"?>',
-'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-]
-for path in paths:
-lines.append("  <url>")
-lines.append(f"    <loc>{base}{path}</loc>")
-lines.append("  </url>")
-lines.append("</urlset>")
-return Response(content="\n".join(lines), media_type="application/xml")
+    base = str(request.base_url).rstrip("/")
+    paths = [
+        "/",
+        "/instagram-downloader",
+        "/youtube-downloader",
+        "/tiktok-downloader",
+        "/twitter-downloader",
+        "/video-to-mp3",
+        "/dashboard",
+    ]
+    lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ]
+    for path in paths:
+        lines.append("  <url>")
+        lines.append(f"    <loc>{base}{path}</loc>")
+        lines.append("  </url>")
+    lines.append("</urlset>")
+    return Response(content="\n".join(lines), media_type="application/xml")
 
 
 @app.get("/api/history")
 def history_list() -> dict[str, list[dict[str, Any]]]:
-with HISTORY_LOCK:
-items = _read_history_nolock()
-return {"items": [_history_response_item(item) for item in items]}
+    with HISTORY_LOCK:
+        items = _read_history_nolock()
+    return {"items": [_history_response_item(item) for item in items]}
 
 
 @app.delete("/api/history")
 def history_clear() -> dict[str, str]:
-with HISTORY_LOCK:
-_write_history_nolock([])
-return {"status": "cleared"}
+    with HISTORY_LOCK:
+        _write_history_nolock([])
+    return {"status": "cleared"}
 
 
 @app.post("/api/info")
 def media_info(payload: InfoRequest) -> dict[str, Any]:
-source_url = _validate_url(payload.url)
-try:
-info = _extract_info(source_url)
-except HTTPException:
-raise
-except Exception as exc:
-raise HTTPException(status_code=400, detail=f"Failed to analyze URL: {exc}") from exc
+    source_url = _validate_url(payload.url)
+    try:
+        info = _extract_info(source_url)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"Failed to analyze URL: {exc}") from exc
 
-formats = info.get("formats") or []
-if not isinstance(formats, list):
-formats = []
+    formats = info.get("formats") or []
+    if not isinstance(formats, list):
+        formats = []
 
-return {
-"title": info.get("title") or "Untitled media",
-"uploader": info.get("uploader") or info.get("channel") or "Unknown",
-"duration": info.get("duration"),
-"thumbnail": info.get("thumbnail"),
-"source_url": source_url,
-"video_options": _video_options(formats),
-"audio_options": _audio_options(formats),
-}
+    return {
+        "title": info.get("title") or "Untitled media",
+        "uploader": info.get("uploader") or info.get("channel") or "Unknown",
+        "duration": info.get("duration"),
+        "thumbnail": info.get("thumbnail"),
+        "source_url": source_url,
+        "video_options": _video_options(formats),
+        "audio_options": _audio_options(formats),
+    }
 
 
 @app.get("/api/download")
 def download(
-url: str,
-kind: str = "video",
-format_id: str = "best",
-audio_format: str = "mp3",
-format_label: str | None = None,
+    url: str,
+    kind: str = "video",
+    format_id: str = "best",
+    audio_format: str = "mp3",
+    format_label: str | None = None,
 ) -> FileResponse:
-url = _validate_url(url)
-kind = kind.lower().strip()
-audio_format = audio_format.lower().strip()
-if kind not in {"video", "audio"}:
-raise HTTPException(status_code=400, detail="kind must be video or audio")
-if audio_format not in {"mp3", "m4a", "wav", "opus"}:
-raise HTTPException(status_code=400, detail="Unsupported audio format.")
+    url = _validate_url(url)
+    kind = kind.lower().strip()
+    audio_format = audio_format.lower().strip()
+    if kind not in {"video", "audio"}:
+        raise HTTPException(status_code=400, detail="kind must be video or audio")
+    if audio_format not in {"mp3", "m4a", "wav", "opus"}:
+        raise HTTPException(status_code=400, detail="Unsupported audio format.")
 
-work_dir = TMP_DIR / uuid.uuid4().hex
-work_dir.mkdir(parents=True, exist_ok=True)
+    work_dir = TMP_DIR / uuid.uuid4().hex
+    work_dir.mkdir(parents=True, exist_ok=True)
 
-outtmpl = str(work_dir / "%(title).80s [%(id)s].%(ext)s")
-ydl_opts: dict[str, Any] = {
-"quiet": True,
-"no_warnings": True,
-"noplaylist": True,
-"outtmpl": outtmpl,
-}
+    outtmpl = str(work_dir / "%(title).80s [%(id)s].%(ext)s")
+    ydl_opts: dict[str, Any] = {
+        "quiet": True,
+        "no_warnings": True,
+        "noplaylist": True,
+        "outtmpl": outtmpl,
+    }
 
-if kind == "video":
-ydl_opts["format"] = format_id or "best"
-ydl_opts["merge_output_format"] = "mp4"
-else:
-selected_audio = format_id if format_id and format_id != "best" else "bestaudio"
-ydl_opts["format"] = f"{selected_audio}/bestaudio/best"
-ydl_opts["postprocessors"] = [
-{
-"key": "FFmpegExtractAudio",
-"preferredcodec": audio_format,
-"preferredquality": "192",
-}
-]
+    if kind == "video":
+        ydl_opts["format"] = format_id or "best"
+        ydl_opts["merge_output_format"] = "mp4"
+    else:
+        selected_audio = format_id if format_id and format_id != "best" else "bestaudio"
+        ydl_opts["format"] = f"{selected_audio}/bestaudio/best"
+        ydl_opts["postprocessors"] = [
+            {
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": audio_format,
+                "preferredquality": "192",
+            }
+        ]
 
-try:
-with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-info = ydl.extract_info(url, download=True)
-except Exception as exc:
-shutil.rmtree(work_dir, ignore_errors=True)
-raise HTTPException(status_code=400, detail=f"Download failed: {exc}") from exc
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=True)
+    except Exception as exc:
+        shutil.rmtree(work_dir, ignore_errors=True)
+        raise HTTPException(status_code=400, detail=f"Download failed: {exc}") from exc
 
-try:
-file_path = _latest_file(work_dir)
-except HTTPException:
-shutil.rmtree(work_dir, ignore_errors=True)
-raise
-title = "download"
-if isinstance(info, dict):
-title = str(info.get("title") or title)
-filename = f"{_clean_name(title)}{file_path.suffix or ''}"
-display_format = (format_label or "").strip()
-if not display_format:
-if kind == "video":
-display_format = format_id or "best"
-else:
-selected_audio = format_id if format_id and format_id != "best" else "bestaudio"
-display_format = f"{selected_audio} -> {audio_format.upper()}"
-_append_history_entry(
-{
-"id": uuid.uuid4().hex,
-"title": title,
-"source_url": url,
-"kind": kind,
-"format_id": format_id or ("bestaudio" if kind == "audio" else "best"),
-"audio_format": audio_format if kind == "audio" else None,
-"format": display_format[:180],
-"created_at": datetime.now(timezone.utc).isoformat(),
-}
-)
+    try:
+        file_path = _latest_file(work_dir)
+    except HTTPException:
+        shutil.rmtree(work_dir, ignore_errors=True)
+        raise
+    title = "download"
+    if isinstance(info, dict):
+        title = str(info.get("title") or title)
+    filename = f"{_clean_name(title)}{file_path.suffix or ''}"
+    display_format = (format_label or "").strip()
+    if not display_format:
+        if kind == "video":
+            display_format = format_id or "best"
+        else:
+            selected_audio = format_id if format_id and format_id != "best" else "bestaudio"
+            display_format = f"{selected_audio} -> {audio_format.upper()}"
+    _append_history_entry(
+        {
+            "id": uuid.uuid4().hex,
+            "title": title,
+            "source_url": url,
+            "kind": kind,
+            "format_id": format_id or ("bestaudio" if kind == "audio" else "best"),
+            "audio_format": audio_format if kind == "audio" else None,
+            "format": display_format[:180],
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+    )
 
-return FileResponse(
-path=file_path,
-filename=filename,
-media_type="application/octet-stream",
-background=BackgroundTask(shutil.rmtree, work_dir, ignore_errors=True),
-)
+    return FileResponse(
+        path=file_path,
+        filename=filename,
+        media_type="application/octet-stream",
+        background=BackgroundTask(shutil.rmtree, work_dir, ignore_errors=True),
+    )
