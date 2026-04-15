@@ -251,7 +251,7 @@ def video_to_mp3() -> FileResponse:
 
 
 @app.get("/owner-dashboard")
-def owner_dashboard() -> FileResponse:
+def owner-dashboard() -> FileResponse:
     return _page_file("owner-dashboard.html")
 
 
@@ -266,7 +266,6 @@ def sitemap(request: Request) -> Response:
         "/tiktok-downloader",
         "/twitter-downloader",
         "/video-to-mp3",
-        "/dashboard",
     ]
     lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
