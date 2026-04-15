@@ -16,177 +16,8 @@ const downloadAudioBtn = document.getElementById("download-audio");
 
 const pageMode = (document.body.dataset.pageMode || "all").toLowerCase();
 const defaultAudioFormat = (document.body.dataset.defaultAudioFormat || "mp3").toLowerCase();
-const allowedHosts = (document.body.dataset.allowedHosts || "")
-  .split(",")
-  .map((x) => x.trim().toLowerCase())
-  .filter(Boolean);
 
 let currentInfo = null;
-const routeDefaultLang = (document.body.dataset.defaultLang || "").toLowerCase();
-let currentLang = routeDefaultLang || localStorage.getItem("site_lang") || "en";
-
-const i18n = {
-  en: {
-    analyze: "Analyze",
-    analyzing: "Analyzing...",
-    reading: "Reading video details...",
-    ready: "Ready. Choose your options and download.",
-    readyAudio: "Ready. Choose audio stream and download.",
-    needUrl: "Please enter a video URL first.",
-    needAnalyze: "Analyze a URL first.",
-    wrongHost: "This page supports only its own platform links.",
-    genericErr: "Something went wrong.",
-    downloadVideo: "Download Video",
-    downloadAudio: "Download Audio",
-  },
-  ar: {
-    analyze: "تحليل",
-    analyzing: "جاري التحليل...",
-    reading: "جاري قراءة تفاصيل الفيديو...",
-    ready: "جاهز. اختر الإعدادات وابدأ التنزيل.",
-    readyAudio: "جاهز. اختر مسار الصوت وابدأ التنزيل.",
-    needUrl: "الرجاء إدخال رابط فيديو أولاً.",
-    needAnalyze: "قم بتحليل الرابط أولاً.",
-    wrongHost: "هذه الصفحة مخصصة للمنصة الخاصة بها فقط.",
-    genericErr: "حدث خطأ ما.",
-    downloadVideo: "تنزيل الفيديو",
-    downloadAudio: "تنزيل الصوت",
-  },
-  es: {
-    analyze: "Analizar",
-    analyzing: "Analizando...",
-    reading: "Leyendo detalles del video...",
-    ready: "Listo. Elige opciones y descarga.",
-    readyAudio: "Listo. Elige flujo de audio y descarga.",
-    needUrl: "Primero ingresa un enlace de video.",
-    needAnalyze: "Primero analiza un enlace.",
-    wrongHost: "Esta pagina solo admite enlaces de su plataforma.",
-    genericErr: "Algo salio mal.",
-    downloadVideo: "Descargar Video",
-    downloadAudio: "Descargar Audio",
-  },
-  fr: {
-    analyze: "Analyser",
-    analyzing: "Analyse en cours...",
-    reading: "Lecture des details de la video...",
-    ready: "Pret. Choisissez les options et telechargez.",
-    readyAudio: "Pret. Choisissez le flux audio et telechargez.",
-    needUrl: "Veuillez entrer un lien video d'abord.",
-    needAnalyze: "Analysez un lien d'abord.",
-    wrongHost: "Cette page accepte uniquement les liens de sa plateforme.",
-    genericErr: "Une erreur est survenue.",
-    downloadVideo: "Telecharger Video",
-    downloadAudio: "Telecharger Audio",
-  },
-  pt: {
-    analyze: "Analisar",
-    analyzing: "Analisando...",
-    reading: "Lendo detalhes do video...",
-    ready: "Pronto. Escolha as opcoes e baixe.",
-    readyAudio: "Pronto. Escolha o fluxo de audio e baixe.",
-    needUrl: "Insira primeiro um link de video.",
-    needAnalyze: "Analise um link primeiro.",
-    wrongHost: "Esta pagina aceita apenas links da propria plataforma.",
-    genericErr: "Algo deu errado.",
-    downloadVideo: "Baixar Video",
-    downloadAudio: "Baixar Audio",
-  },
-  hi: {
-    analyze: "विश्लेषण करें",
-    analyzing: "विश्लेषण हो रहा है...",
-    reading: "वीडियो विवरण पढ़ा जा रहा है...",
-    ready: "तैयार है। विकल्प चुनें और डाउनलोड करें।",
-    readyAudio: "तैयार है। ऑडियो स्ट्रीम चुनें और डाउनलोड करें।",
-    needUrl: "पहले वीडियो लिंक डालें।",
-    needAnalyze: "पहले लिंक का विश्लेषण करें।",
-    wrongHost: "यह पेज केवल अपनी प्लेटफॉर्म लिंक के लिए है।",
-    genericErr: "कुछ गलत हो गया।",
-    downloadVideo: "वीडियो डाउनलोड करें",
-    downloadAudio: "ऑडियो डाउनलोड करें",
-  },
-  zh: {
-    analyze: "分析",
-    analyzing: "正在分析...",
-    reading: "正在读取视频详情...",
-    ready: "准备好了。请选择选项并下载。",
-    readyAudio: "准备好了。请选择音频流并下载。",
-    needUrl: "请先输入视频链接。",
-    needAnalyze: "请先分析链接。",
-    wrongHost: "此页面仅支持其对应平台的链接。",
-    genericErr: "发生错误。",
-    downloadVideo: "下载视频",
-    downloadAudio: "下载音频",
-  },
-  ru: {
-    analyze: "Анализ",
-    analyzing: "Анализируем...",
-    reading: "Читаем данные видео...",
-    ready: "Готово. Выберите параметры и скачайте.",
-    readyAudio: "Готово. Выберите аудиопоток и скачайте.",
-    needUrl: "Сначала вставьте ссылку на видео.",
-    needAnalyze: "Сначала проанализируйте ссылку.",
-    wrongHost: "Эта страница поддерживает только ссылки своей платформы.",
-    genericErr: "Что-то пошло не так.",
-    downloadVideo: "Скачать видео",
-    downloadAudio: "Скачать аудио",
-  },
-  de: {
-    analyze: "Analysieren",
-    analyzing: "Wird analysiert...",
-    reading: "Videodetails werden gelesen...",
-    ready: "Fertig. Optionen waehlen und herunterladen.",
-    readyAudio: "Fertig. Audiostream waehlen und herunterladen.",
-    needUrl: "Bitte zuerst einen Videolink eingeben.",
-    needAnalyze: "Bitte zuerst den Link analysieren.",
-    wrongHost: "Diese Seite erlaubt nur Links der eigenen Plattform.",
-    genericErr: "Etwas ist schiefgelaufen.",
-    downloadVideo: "Video herunterladen",
-    downloadAudio: "Audio herunterladen",
-  },
-  id: {
-    analyze: "Analisis",
-    analyzing: "Sedang menganalisis...",
-    reading: "Membaca detail video...",
-    ready: "Siap. Pilih opsi dan unduh.",
-    readyAudio: "Siap. Pilih stream audio dan unduh.",
-    needUrl: "Masukkan tautan video terlebih dahulu.",
-    needAnalyze: "Analisis tautan terlebih dahulu.",
-    wrongHost: "Halaman ini hanya mendukung tautan platformnya sendiri.",
-    genericErr: "Terjadi kesalahan.",
-    downloadVideo: "Unduh Video",
-    downloadAudio: "Unduh Audio",
-  },
-  tr: {
-    analyze: "Analiz Et",
-    analyzing: "Analiz ediliyor...",
-    reading: "Video ayrintilari okunuyor...",
-    ready: "Hazir. Secenekleri belirleyip indirin.",
-    readyAudio: "Hazir. Ses akisını secip indirin.",
-    needUrl: "Lutfen once bir video baglantisi girin.",
-    needAnalyze: "Lutfen once baglantiyi analiz edin.",
-    wrongHost: "Bu sayfa sadece kendi platform baglantilarini destekler.",
-    genericErr: "Bir hata olustu.",
-    downloadVideo: "Videoyu Indir",
-    downloadAudio: "Sesi Indir",
-  },
-  ja: {
-    analyze: "解析",
-    analyzing: "解析中...",
-    reading: "動画の詳細を取得中...",
-    ready: "準備完了。オプションを選んでダウンロードしてください。",
-    readyAudio: "準備完了。音声ストリームを選んでダウンロードしてください。",
-    needUrl: "先に動画URLを入力してください。",
-    needAnalyze: "先にURLを解析してください。",
-    wrongHost: "このページは対応プラットフォームのリンクのみ利用できます。",
-    genericErr: "エラーが発生しました。",
-    downloadVideo: "動画をダウンロード",
-    downloadAudio: "音声をダウンロード",
-  },
-};
-
-function t(key) {
-  return (i18n[currentLang] || i18n.en)[key] || i18n.en[key] || key;
-}
 
 function setStatus(message, isError = false) {
   if (!statusBox) return;
@@ -227,7 +58,7 @@ function fillSelect(select, options) {
 function setLoading(loading) {
   if (!analyzeBtn) return;
   analyzeBtn.disabled = loading;
-  analyzeBtn.textContent = loading ? t("analyzing") : t("analyze");
+  analyzeBtn.textContent = loading ? "Analyzing..." : "Analyze";
 }
 
 function applyDefaultsAfterAnalyze() {
@@ -238,7 +69,7 @@ function applyDefaultsAfterAnalyze() {
 
 async function analyzeUrl(url) {
   setLoading(true);
-  setStatus(t("reading"));
+  setStatus("Reading video details...");
   if (resultSection) resultSection.classList.add("hidden");
   currentInfo = null;
 
@@ -246,7 +77,7 @@ async function analyzeUrl(url) {
     const response = await fetch("/api/info", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url, source_page: window.location.pathname || "/" }),
+      body: JSON.stringify({ url }),
     });
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.detail || "Failed to analyze URL.");
@@ -266,12 +97,12 @@ async function analyzeUrl(url) {
 
     if (resultSection) resultSection.classList.remove("hidden");
     if (pageMode === "audio") {
-      setStatus(t("readyAudio"));
+      setStatus("Ready. Choose audio stream and download.");
     } else {
-      setStatus(t("ready"));
+      setStatus("Ready. Choose your options and download.");
     }
   } catch (err) {
-    setStatus(err.message || t("genericErr"), true);
+    setStatus(err.message || "Something went wrong.", true);
   } finally {
     setLoading(false);
   }
@@ -294,27 +125,7 @@ function buildDownloadUrl(kind) {
     params.set("audio_format", finalAudioFormat);
     params.set("format_label", `${selectedOptionLabel(audioFormatIdSelect)} -> ${finalAudioFormat.toUpperCase()}`);
   }
-  params.set("source_page", window.location.pathname || "/");
   return `/api/download?${params.toString()}`;
-}
-
-function isHostAllowed(inputUrl) {
-  if (!allowedHosts.length) return true;
-  try {
-    const u = new URL(inputUrl);
-    const host = u.hostname.toLowerCase();
-    return allowedHosts.some((allowed) => host === allowed || host.endsWith(`.${allowed}`));
-  } catch {
-    return false;
-  }
-}
-
-function applyLanguage() {
-  if (analyzeBtn) analyzeBtn.textContent = t("analyze");
-  if (downloadVideoBtn) downloadVideoBtn.textContent = t("downloadVideo");
-  if (downloadAudioBtn) downloadAudioBtn.textContent = t("downloadAudio");
-  document.documentElement.setAttribute("lang", currentLang);
-  document.documentElement.setAttribute("dir", currentLang === "ar" ? "rtl" : "ltr");
 }
 
 if (form && urlInput) {
@@ -322,11 +133,7 @@ if (form && urlInput) {
     event.preventDefault();
     const url = urlInput.value.trim();
     if (!url) {
-      setStatus(t("needUrl"), true);
-      return;
-    }
-    if (!isHostAllowed(url)) {
-      setStatus(t("wrongHost"), true);
+      setStatus("Please enter a video URL first.", true);
       return;
     }
     await analyzeUrl(url);
@@ -337,7 +144,7 @@ if (downloadVideoBtn) {
   downloadVideoBtn.addEventListener("click", () => {
     const target = buildDownloadUrl("video");
     if (!target) {
-      setStatus(t("needAnalyze"), true);
+      setStatus("Analyze a URL first.", true);
       return;
     }
     window.open(target, "_blank", "noopener,noreferrer");
@@ -348,7 +155,7 @@ if (downloadAudioBtn) {
   downloadAudioBtn.addEventListener("click", () => {
     const target = buildDownloadUrl("audio");
     if (!target) {
-      setStatus(t("needAnalyze"), true);
+      setStatus("Analyze a URL first.", true);
       return;
     }
     window.open(target, "_blank", "noopener,noreferrer");
@@ -358,6 +165,3 @@ if (downloadAudioBtn) {
 if (audioFileFormatSelect && hasOption(audioFileFormatSelect, defaultAudioFormat)) {
   audioFileFormatSelect.value = defaultAudioFormat;
 }
-
-if (!i18n[currentLang]) currentLang = "en";
-applyLanguage();
