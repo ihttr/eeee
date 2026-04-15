@@ -58,7 +58,7 @@ function fillSelect(select, options) {
 function setLoading(loading) {
   if (!analyzeBtn) return;
   analyzeBtn.disabled = loading;
-  analyzeBtn.textContent = loading ? "Analyzing..." : "Analyze";
+  analyzeBtn.textContent = loading ? "Downloading..." : "Download";
 }
 
 function applyDefaultsAfterAnalyze() {
