@@ -598,25 +598,25 @@ def _build_urlset_xml(base: str, paths: list[str], priority: str = "0.8") -> str
 
 
 @app.get("/sitemap.xml")
-@app.get("/sitmap.xml")
-def sitemap_index(request: Request) -> Response:
-    base = str(request.base_url).rstrip("/")
-    lastmod = datetime.now(timezone.utc).date().isoformat()
-    sitemaps = ["/sitemap-core.xml" ]#"/sitemap-en.xml", "/sitemap-ar.xml"]
-    lines = [
-        '<?xml version="1.0" encoding="UTF-8"?>',
-        '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-    ]
-    for item in sitemaps:
-        lines.append("  <sitemap>")
-        lines.append(f"    <loc>{base}{item}</loc>")
-        lines.append(f"    <lastmod>{lastmod}</lastmod>")
-        lines.append("  </sitemap>")
-    lines.append("</sitemapindex>")
-    return Response(content="\n".join(lines), media_type="application/xml")
+#@app.get("/sitmap.xml")
+#def sitemap_index(request: Request) -> Response:
+    #base = str(request.base_url).rstrip("/")
+   # lastmod = datetime.now(timezone.utc).date().isoformat()
+   # sitemaps = ["/sitemap-core.xml" ]#"/sitemap-en.xml", "/sitemap-ar.xml"]
+  #  lines = [
+    #    '<?xml version="1.0" encoding="UTF-8"?>',
+  #      '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+#    ]
+#    for item in sitemaps:
+ #       lines.append("  <sitemap>")
+ #       lines.append(f"    <loc>{base}{item}</loc>")
+  #      lines.append(f"    <lastmod>{lastmod}</lastmod>")
+#        lines.append("  </sitemap>")
+   # lines.append("</sitemapindex>")
+  #  return Response(content="\n".join(lines), media_type="application/xml")
 
 
-@app.get("/sitemap-core.xml")
+@app.get("/sitemap.xml")
 def sitemap_core(request: Request) -> Response:
     base = str(request.base_url).rstrip("/")
     paths = [
