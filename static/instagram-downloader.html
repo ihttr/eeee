@@ -131,5 +131,14 @@
     </main>
 
     <script src="/static/app.js"></script>
+    <script>
+document.querySelectorAll(".seo-content h3").forEach((q) => {
+  q.addEventListener("click", () => {
+    const answer = q.nextElementSibling;
+
+    answer.classList.toggle("open");
+  });
+});
+</script>
   </body>
 </html>
