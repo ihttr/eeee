@@ -19,6 +19,28 @@ const defaultAudioFormat = (document.body.dataset.defaultAudioFormat || "mp3").t
 
 let currentInfo = null;
 
+/* ✅ المواقع المسموحة */
+const allowedDomains = [
+  "tiktok.com",
+  "instagram.com",
+  "youtube.com",
+  "youtu.be"
+];
+
+/* ✅ تحقق أقوى من الدومين */
+function isValidPlatform(url) {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace("www.", "");
+
+    return allowedDomains.some(domain =>
+      host === domain || host.endsWith("." + domain)
+    );
+  } catch {
+    return false;
+  }
+}
+
 function setStatus(message, isError = false) {
   if (!statusBox) return;
   statusBox.textContent = message;
@@ -79,13 +101,16 @@ async function analyzeUrl(url) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url }),
     });
+
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.detail || "Failed to analyze URL.");
 
     currentInfo = payload;
+
     if (titleNode) titleNode.textContent = payload.title || "Untitled media";
     if (uploaderNode) uploaderNode.textContent = `Uploader: ${payload.uploader || "Unknown"}`;
     if (durationNode) durationNode.textContent = formatDuration(Number(payload.duration));
+
     if (thumbNode) {
       thumbNode.src = payload.thumbnail || "";
       thumbNode.style.display = payload.thumbnail ? "block" : "none";
@@ -96,11 +121,13 @@ async function analyzeUrl(url) {
     applyDefaultsAfterAnalyze();
 
     if (resultSection) resultSection.classList.remove("hidden");
+
     if (pageMode === "audio") {
       setStatus("Ready. Choose audio stream and download.");
     } else {
       setStatus("Ready. Choose your options and download.");
     }
+
   } catch (err) {
     setStatus(err.message || "Something went wrong.", true);
   } finally {
@@ -110,6 +137,7 @@ async function analyzeUrl(url) {
 
 function buildDownloadUrl(kind) {
   if (!currentInfo) return null;
+
   const params = new URLSearchParams();
   params.set("url", currentInfo.source_url);
   params.set("kind", kind);
@@ -121,21 +149,32 @@ function buildDownloadUrl(kind) {
   } else {
     if (!audioFormatIdSelect) return null;
     params.set("format_id", audioFormatIdSelect.value || "bestaudio");
+
     const finalAudioFormat = audioFileFormatSelect?.value || defaultAudioFormat || "mp3";
     params.set("audio_format", finalAudioFormat);
     params.set("format_label", `${selectedOptionLabel(audioFormatIdSelect)} -> ${finalAudioFormat.toUpperCase()}`);
   }
+
   return `/api/download?${params.toString()}`;
 }
 
+/* ✅ هنا الفلترة */
 if (form && urlInput) {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+
     const url = urlInput.value.trim();
+
     if (!url) {
       setStatus("Please enter a video URL first.", true);
       return;
     }
+
+    if (!isValidPlatform(url)) {
+      setStatus("❌ Only TikTok, Instagram, and YouTube links are allowed.", true);
+      return;
+    }
+
     await analyzeUrl(url);
   });
 }
