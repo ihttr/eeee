@@ -3,38 +3,53 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TikTok Downloader</title>
+
+    <!-- 🔥 SEO -->
+    <title>TikTok Video Downloader Without Watermark - SaveVid</title>
+    <meta name="description" content="Download TikTok videos without watermark in HD quality. Fast, free, and no login required." />
+    <meta name="keywords" content="tiktok downloader, download tiktok video, no watermark tiktok, save tiktok video" />
+
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
+
   <body data-page-mode="all">
     <div class="bg-orb orb-1"></div>
     <div class="bg-orb orb-2"></div>
+
     <main class="container">
+
+      <!-- 🔥 HERO -->
       <header class="hero">
         <p class="tag">TikTok</p>
+
         <h1>TikTok Video Downloader</h1>
-        <p class="subtitle">Paste a TikTok URL and choose quality or extract audio in one click.</p>
-       
-        
+
+        <p class="subtitle">
+          Download TikTok videos without watermark in HD quality.
+          Fast, free, and works on all devices.
+        </p>
       </header>
 
+      <!-- 🧠 TOOL -->
       <section class="panel">
         <form id="analyze-form" class="url-form">
           <label for="url-input">TikTok URL</label>
+
           <div class="row">
             <input
               id="url-input"
               type="url"
               required
-              placeholder="https://www.tiktok.com/@.../video/..."
+              placeholder="https://www.tiktok.com/@user/video/..."
               autocomplete="off"
             />
-            <button id="analyze-btn" type="submit">Analyze</button>
+            <button id="analyze-btn" type="submit">Download</button>
           </div>
         </form>
 
         <p id="status" class="status"></p>
 
+        <!-- 📦 RESULT -->
         <section id="result" class="result hidden">
           <div class="meta">
             <img id="thumb" alt="Thumbnail" class="thumb" />
@@ -47,18 +62,18 @@
 
           <div class="download-grid">
             <article class="card">
-              <h3>Video download</h3>
+              <h3>Download Video</h3>
               <label for="video-format">Quality</label>
               <select id="video-format"></select>
               <button id="download-video" type="button">Download Video</button>
             </article>
 
             <article class="card">
-              <h3>Audio download</h3>
-              <label for="audio-format-id">Source audio stream</label>
+              <h3>Download Audio</h3>
+              <label for="audio-format-id">Audio Stream</label>
               <select id="audio-format-id"></select>
 
-              <label for="audio-file-format">Final file format</label>
+              <label for="audio-file-format">Format</label>
               <select id="audio-file-format">
                 <option value="mp3">MP3</option>
                 <option value="m4a">M4A</option>
@@ -71,6 +86,46 @@
           </div>
         </section>
       </section>
+
+      <!-- 🔥 SEO CONTENT -->
+      <section class="seo-content">
+
+        <h2>Download TikTok Videos Without Watermark</h2>
+        <p>
+          Save TikTok videos in high quality without watermark using SaveVid.
+          Our tool is fast, free, and works on mobile, tablet, and desktop devices.
+        </p>
+
+        <h2>How to Download TikTok Videos?</h2>
+        <ol>
+          <li>Copy the TikTok video link</li>
+          <li>Paste it into the input field above</li>
+          <li>Click the Download button</li>
+          <li>Choose video or audio format</li>
+        </ol>
+
+        <h2>Features</h2>
+        <ul>
+          <li>✔ No watermark TikTok download</li>
+          <li>✔ HD video quality</li>
+          <li>✔ Fast processing</li>
+          <li>✔ Free and unlimited downloads</li>
+        </ul>
+
+        <!-- 💥 FAQ -->
+        <h2>FAQ</h2>
+
+        <h3>Can I download TikTok videos without watermark?</h3>
+        <p>Yes, our tool removes the watermark automatically.</p>
+
+        <h3>Is this TikTok downloader free?</h3>
+        <p>Yes, completely free with no limits.</p>
+
+        <h3>Do I need to install anything?</h3>
+        <p>No, everything works online in your browser.</p>
+
+      </section>
+
     </main>
 
     <script src="/static/app.js"></script>
