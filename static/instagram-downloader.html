@@ -3,24 +3,42 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Instagram Downloader</title>
+
+    <!-- ✅ SEO Title -->
+    <title>Instagram Video Downloader - Download Reels, Stories & Videos</title>
+
+    <!-- ✅ SEO Description -->
+    <meta name="description" content="Download Instagram videos, reels, and stories in high quality. Free Instagram downloader without login." />
+
+    <!-- ✅ Keywords (اختياري) -->
+    <meta name="keywords" content="instagram downloader, download instagram video, reels downloader, save instagram video" />
+
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
+
   <body data-page-mode="all">
     <div class="bg-orb orb-1"></div>
     <div class="bg-orb orb-2"></div>
+
     <main class="container">
+      
+      <!-- 🔥 HERO -->
       <header class="hero">
         <p class="tag">Instagram</p>
+
         <h1>Instagram Video Downloader</h1>
-        <p class="subtitle">Paste an Instagram link and download video or audio in your preferred format.</p>
-       
-        
+
+        <p class="subtitle">
+          Download Instagram videos, reels, and stories in HD quality. 
+          Fast, free, and no login required.
+        </p>
       </header>
 
+      <!-- 🔧 TOOL -->
       <section class="panel">
         <form id="analyze-form" class="url-form">
           <label for="url-input">Instagram URL</label>
+
           <div class="row">
             <input
               id="url-input"
@@ -29,12 +47,13 @@
               placeholder="https://www.instagram.com/reel/..."
               autocomplete="off"
             />
-            <button id="analyze-btn" type="submit">Analyze</button>
+            <button id="analyze-btn" type="submit">Download</button>
           </div>
         </form>
 
         <p id="status" class="status"></p>
 
+        <!-- 📦 RESULT -->
         <section id="result" class="result hidden">
           <div class="meta">
             <img id="thumb" alt="Thumbnail" class="thumb" />
@@ -47,18 +66,18 @@
 
           <div class="download-grid">
             <article class="card">
-              <h3>Video download</h3>
+              <h3>Download Video</h3>
               <label for="video-format">Quality</label>
               <select id="video-format"></select>
               <button id="download-video" type="button">Download Video</button>
             </article>
 
             <article class="card">
-              <h3>Audio download</h3>
-              <label for="audio-format-id">Source audio stream</label>
+              <h3>Download Audio</h3>
+              <label for="audio-format-id">Audio Stream</label>
               <select id="audio-format-id"></select>
 
-              <label for="audio-file-format">Final file format</label>
+              <label for="audio-file-format">Format</label>
               <select id="audio-file-format">
                 <option value="mp3">MP3</option>
                 <option value="m4a">M4A</option>
@@ -71,6 +90,44 @@
           </div>
         </section>
       </section>
+
+      <!-- 🔥 SEO CONTENT -->
+      <section class="seo-content">
+        <h2>Download Instagram Videos Easily</h2>
+        <p>
+          Save Instagram videos, reels, and stories in high quality using our free tool.
+          No registration required and works on all devices.
+        </p>
+
+        <h2>How to Download Instagram Videos?</h2>
+        <ol>
+          <li>Copy the Instagram video link</li>
+          <li>Paste it into the input field above</li>
+          <li>Click the Download button</li>
+          <li>Choose your preferred format</li>
+        </ol>
+
+        <h2>Features</h2>
+        <ul>
+          <li>✔ Download Instagram reels</li>
+          <li>✔ No watermark</li>
+          <li>✔ Fast processing</li>
+          <li>✔ Free and unlimited</li>
+        </ul>
+
+        <!-- 💥 FAQ -->
+        <h2>FAQ</h2>
+
+        <h3>Is this Instagram downloader free?</h3>
+        <p>Yes, it is completely free to use.</p>
+
+        <h3>Do I need an account?</h3>
+        <p>No login or account is required.</p>
+
+        <h3>Can I download reels?</h3>
+        <p>Yes, you can download reels, videos, and stories.</p>
+      </section>
+
     </main>
 
     <script src="/static/app.js"></script>
