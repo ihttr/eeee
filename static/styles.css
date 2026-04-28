@@ -461,24 +461,19 @@ footer {
   -webkit-text-fill-color: transparent;
 }
 
-/* 📖 تحسين النص */
-.seo-content p {
-  color: var(--muted);
-  line-height: 1.7;
-  margin-bottom: 14px;
-  font-size: 15px;
+/* 📖 .seo-content {
+  margin-top: 40px;
+  padding: 28px;
+  border-radius: 20px;
+  background: rgba(10, 16, 30, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* 🔢 تحسين القوائم */
-.seo-content ol,
-.seo-content ul {
-  margin-left: 18px;
-  margin-top: 10px;
-  margin-bottom: 18px;
-  color: var(--text);
+.seo-content h2 {
+  color: #4cc9f0 !important;
+  margin-top: 25px;
 }
 
-/* ✨ Features Grid */
 .seo-content ul {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -488,82 +483,7 @@ footer {
 }
 
 .seo-content ul li {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: 0.2s;
-}
-
-.seo-content ul li:hover {
-  transform: translateY(-2px);
-  border-color: rgba(76, 201, 240, 0.6);
-}
-
-/* 💥 FAQ تحسين */
-.seo-content h3 {
-  margin-top: 18px;
-  margin-bottom: 6px;
-  font-size: 17px;
-  cursor: pointer;
-  position: relative;
-  padding-right: 20px;
-}
-
-/* سهم صغير */
-.seo-content h3::after {
-  content: "+";
-  position: absolute;
-  right: 0;
-  top: 0;
-  color: var(--accent);
-}
-
-/* 📦 FAQ Box */
-.seo-content h3 + p {
-  background: rgba(255, 255, 255, 0.04);
-  padding: 10px 12px;
+  background: rgba(255,255,255,0.05);
+  padding: 10px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-/* ✨ تحسين الهيرو */
-.hero {
-  margin-bottom: 10px;
-}
-
-.subtitle {
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-/* 🚀 زر الإدخال */
-.row input {
-  transition: 0.2s;
-}
-
-.row input:hover {
-  border-color: rgba(76, 201, 240, 0.5);
-}
-
-/* ✨ تحسين الكروت */
-.card {
-  transition: 0.25s;
-}
-
-.card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(76, 201, 240, 0.6);
-  box-shadow: 0 10px 30px rgba(76, 201, 240, 0.15);
-}
-
-/* 📱 موبايل */
-@media (max-width: 600px) {
-  .seo-content ul {
-    grid-template-columns: 1fr;
-  }
-
-  .seo-content {
-    padding: 20px;
-  }
 }
